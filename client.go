@@ -30,6 +30,18 @@ var contributedToRepos struct {
 	}
 }
 
+var openedPullRequests struct {
+	Viewer struct {
+		Login        graphql.String
+		PullRequests struct {
+			Nodes []struct {
+				BodyText graphql.String
+				Url      graphql.String
+			}
+		} `graphql:"pullRequests(first: 100)"`
+	}
+}
+
 func main() {
 
 	httpClient := setupOAuth()
