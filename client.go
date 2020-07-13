@@ -18,22 +18,30 @@ func setupOAuth() *http.Client {
 	return httpClient
 }
 
-func main() {
-	var query struct {
-		Viewer struct {
-			Login graphql.String
-		}
+var contributedToRepos struct {
+	Viewer struct {
+		Login                     graphql.String
+		RepositoriesContributedTo struct {
+			Nodes []struct {
+				Name graphql.String
+				Url  graphql.String
+			}
+		} `graphql:"repositoriesContributedTo(first: 100, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY])"`
 	}
+}
+
+func main() {
 
 	httpClient := setupOAuth()
 
 	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+
+	query := contributedToRepos
 
 	err := client.Query(context.Background(), &query, nil)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println(query.Viewer.Login)
 	fmt.Println(query)
 }
