@@ -19,43 +19,33 @@ type repositoriesContributedTo struct {
 	}
 }
 
+// Nodes      []struct {
+// 	PullRequest struct {
+// 		Title  graphql.String
+// 		Url    graphql.String
+// 		Merged graphql.Boolean
+
+// 		Participants struct {
+// 			TotalCount graphql.Int
+// 			Nodes      []struct {
+// 				Login graphql.String
+// 				Url   graphql.String
+// 			}
+// 		} `graphql:"participants(first:30)"`
+// 	} `graphql:"... on PullRequest"`
+// }
 
 type pullRequestsOpened struct {
-    Search struct {
-      IssueCount graphql.Int
-	  Nodes struct {
-		  PullRequest struct {
-			  Title graphql.String
-			  Url graphql.String
-			  Merged graphql.Boolean
-
-			  Participants struct {
-				TotalCount graphql.Int
-				Nodes struct {
-				  Login graphql.String
-				  Url graphql.String
-				}
-			} `graphql:\"participants(first:30)\"`
-		  } `graphql:\"... on PullRequest\"`
-		}
-
-		Issue struct {
-		  Title graphql.String
-		  Url graphql.String
-		  State graphql.String
-
-		  Participants struct {
-			TotalCount graphql.Int
-			Nodes struct {
-			  Login graphql.String
-			  Url graphql.String
-			}
-		  } `graphql:\"participants(first:30)\"`
-		} `graphql:\"... on Issue\"`
-	  }
-	} `graphql:"search(\"is:pr author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+	Search struct {
+		IssueCount graphql.Int
+	} `graphql:"search(query: \"is:pr author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
 }
 
+type pullRequestsMerged struct {
+	Search struct {
+		IssueCount graphql.Int
+	} `graphql:"search(query: \"is:pr author:@me merged:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+}
 
 func main() {
 	httpClient := SetupOAuth()
@@ -63,10 +53,15 @@ func main() {
 
 	// Call the API with the relevant queries
 
-	var query repositoriesContributedTo
-	err := client.Query(context.Background(), &query, nil)
+	var prOpened pullRequestsOpened
+	var prMerged pullRequestsMerged
+
+	err := client.Query(context.Background(), &prOpened, nil)
+	CheckAPICallErr(err)
+	err = client.Query(context.Background(), &prMerged, nil)
 	CheckAPICallErr(err)
 
-	fmt.Println(query)
+	fmt.Println(query.Search.IssueCount)
+	fmt.Println(query2)
 
 }
