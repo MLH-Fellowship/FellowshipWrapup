@@ -3,13 +3,24 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/shurcooL/graphql"
 	"golang.org/x/oauth2"
 )
+
+type repositoriesContributedTo struct {
+	Viewer struct {
+		Login                     graphql.String
+		RepositoriesContributedTo struct {
+			Nodes []struct {
+				Name graphql.String
+				Url  graphql.String
+			}
+		} `graphql:"repositoriesContributedTo(includeUserRepositories: true, first: 100, contributionTypes: [PULL_REQUEST])"`
+	}
+}
 
 func setupOAuth() *http.Client {
 	src := oauth2.StaticTokenSource(
@@ -20,30 +31,14 @@ func setupOAuth() *http.Client {
 }
 
 func main() {
-	var query struct {
-		Viewer struct {
-			Login                     graphql.String
-			RepositoriesContributedTo struct {
-				Nodes []struct {
-					Name graphql.String
-					Url  graphql.String
-				}
-			} `graphql:"repositoriesContributedTo(includeUserRepositories: true, first: 100, contributionTypes: [PULL_REQUEST])"`
-		}
-	}
-
 	httpClient := setupOAuth()
-
 	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
+	// Call the API with the relevant queries
+
+	var query repositoriesContributedTo
 	err := client.Query(context.Background(), &query, nil)
-	if err != nil {
-		if os.Getenv("GRAPHQL_TOKEN") == "" {
-			log.Fatal("Error: You have not set your GRAPHQL_TOKEN envivironment variable. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to generate a token")
-		} else {
-			log.Fatal("Error: Your GRAPQL_TOKEN envivironment variable is invalid. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to regenerate a new token")
-		}
-	}
+	CheckAPICallErr(err)
 
 	fmt.Println(query)
 
