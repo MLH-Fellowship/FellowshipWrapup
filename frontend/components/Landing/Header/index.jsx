@@ -13,12 +13,21 @@ const Header = () => {
         </h1>
         <h2>
           It's time to show off your hard work to the world. Generate your own
-          personal link by signing in with your Github account and start sharing
-          with others.
+          personal link by{" "}
+          <a
+            href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            generating a new personal access token
+          </a>{" "}
+          and pasting it below.
         </h2>
-        <button onClick={() => Router.push("/user/1")}>
-          Sign in with Github
-        </button>
+
+        <div className="inputContainer">
+          <input type="text" />
+          <button>GO</button>
+        </div>
       </div>
     </StyledHeader>
   );

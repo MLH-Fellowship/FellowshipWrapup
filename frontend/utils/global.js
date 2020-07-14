@@ -18,6 +18,11 @@ export default createGlobalStyle`
         font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
         font-weight: 400;
 
+        a {
+            color: ${({ theme }) => theme.color.main};
+            font-weight: 600;
+        }
+
         code {
           background: #fafafa;
           border-radius: 5px;

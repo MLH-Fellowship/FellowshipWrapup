@@ -1,10 +1,8 @@
 // Libraries
 import { useState, useEffect } from "react";
 import Head from "next/head";
-import dynamic from "next/dynamic";
 import Cookie from "js-cookie";
 import { parseCookies } from "../utils/parseCookies";
-import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 
 // Components

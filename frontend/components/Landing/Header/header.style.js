@@ -36,25 +36,43 @@ export const StyledHeader = styled.header`
       font-weight: 400;
       margin-bottom: 1.5rem;
     }
+  }
 
-    button {
-      background-color: var(--color-main);
-      font-size: 0.9rem;
-      font-weight: 600;
+  .inputContainer {
+    display: flex;
+    align-items: center;
+    max-width: 25rem;
+    margin: 0 auto;
+    padding-right: 0.5rem;
+
+    border-radius: 5px;
+
+    background-color: white;
+
+    input {
+      border: none;
+      border-radius: 5px 0 0 5px;
+      padding: 1.3rem 1rem;
+      width: 100%;
+
+      outline: none;
+
       font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
         DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-      color: white;
-      padding: 0.8rem 2.5rem;
-      border: none;
-      border-radius: 25rem;
+    }
+
+    button {
+      height: 2rem;
+      width: 6rem;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-weight: 600;
+
       cursor: pointer;
 
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
+      background-color: var(--color-main);
+      border: none;
+      color: white;
     }
   }
 `;
