@@ -1,9 +1,9 @@
-const List = () => {
-  return (
-    <div>
-      <h1>How it works</h1>
-    </div>
-  );
-};
+import { StyledBackground } from "./list.style";
 
-export default List;
+export default function List() {
+  return (
+    <StyledBackground>
+      <h1>How it works</h1>
+    </StyledBackground>
+  );
+}
