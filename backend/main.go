@@ -3,11 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"os"
 
 	"github.com/shurcooL/graphql"
-	"golang.org/x/oauth2"
 )
 
 type repositoriesContributedTo struct {
@@ -22,16 +19,46 @@ type repositoriesContributedTo struct {
 	}
 }
 
-func setupOAuth() *http.Client {
-	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GRAPHQL_TOKEN")},
-	)
-	httpClient := oauth2.NewClient(context.Background(), src)
-	return httpClient
+
+type pullRequestsOpened struct {
+    Search struct {
+      IssueCount graphql.Int
+	  Nodes struct {
+		  PullRequest struct {
+			  Title graphql.String
+			  Url graphql.String
+			  Merged graphql.Boolean
+
+			  Participants struct {
+				TotalCount graphql.Int
+				Nodes struct {
+				  Login graphql.String
+				  Url graphql.String
+				}
+			} `graphql:\"participants(first:30)\"`
+		  } `graphql:\"... on PullRequest\"`
+		}
+
+		Issue struct {
+		  Title graphql.String
+		  Url graphql.String
+		  State graphql.String
+
+		  Participants struct {
+			TotalCount graphql.Int
+			Nodes struct {
+			  Login graphql.String
+			  Url graphql.String
+			}
+		  } `graphql:\"participants(first:30)\"`
+		} `graphql:\"... on Issue\"`
+	  }
+	} `graphql:"search(\"is:pr author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
 }
 
+
 func main() {
-	httpClient := setupOAuth()
+	httpClient := SetupOAuth()
 	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
 	// Call the API with the relevant queries
