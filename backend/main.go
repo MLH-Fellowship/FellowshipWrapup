@@ -4,141 +4,42 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"net/http"
+	"os"
+	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/shurcooL/graphql"
 )
 
-type megaJSONStruct struct {
-	repoContrib     repositoriesContributedTo
-	prOpened        pullRequestsOpened
-	prMerged        pullRequestsMerged
-	issOpened       issuesOpened
-	issClosed       issuesClosed
-	PRContributions linesofCodeInPRs
-	PRCommits       commitsOnPRs
+func homeHandler(w http.ResponseWriter, req *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Working home directory")
 }
 
-type linesofCodeInPRs struct {
-	Viewer struct {
-		PullRequests struct {
-			TotalCount graphql.Int
-			Nodes      []struct {
-				Url         graphql.String
-				MergeCommit struct {
-					Additions graphql.Int
-					Deletions graphql.Int
-				}
-			}
-		} `graphql:"pullRequests(first: 50, states:MERGED)"`
+func getFellowHandler(w http.ResponseWriter, req *http.Request) {
+	startTime := time.Now().UnixNano() / int64(time.Millisecond)
+	// vars here is the {username} field in the router
+	vars := mux.Vars(req)
+	// Checks to see if a secret field is sent to make sure no robots
+	// are using up all our calls
+	authorized := isAuthorized(w, req)
+
+	if !authorized {
+		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+		logCall("POST", endPoint, "401", startTime)
+		fmt.Fprintf(w, "You are not authorized to use this API")
+		return
 	}
-}
 
-type commitsOnPRs struct {
-	Viewer struct {
-		PullRequests struct {
-			TotalCount graphql.Int
-			Nodes      []struct {
-				Url     graphql.String
-				Commits struct {
-					TotalCount graphql.Int
-				} `graphql:"commits(last: 150)"`
-				MergeCommit struct {
-					Additions graphql.Int
-					Deletions graphql.Int
-				}
-			}
-		} `graphql:"pullRequests(first: 50, states:MERGED)"`
+	if vars["username"] == "" {
+		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+		logCall("POST", endPoint, "400", startTime)
+		fmt.Fprintf(w, "No username given")
+		return
 	}
-}
 
-type repositoriesContributedTo struct {
-	Viewer struct {
-		Login                     graphql.String
-		RepositoriesContributedTo struct {
-			TotalCount graphql.Int
-			Nodes      []struct {
-				Name graphql.String
-				Url  graphql.String
-			}
-		} `graphql:"repositoriesContributedTo(includeUserRepositories: true, first: 100, contributionTypes: [PULL_REQUEST])"`
-	}
-}
-
-// Nodes      []struct {
-// 	PullRequest struct {
-// 		Title  graphql.String
-// 		Url    graphql.String
-// 		Merged graphql.Boolean
-
-// 		Participants struct {
-// 			TotalCount graphql.Int
-// 			Nodes      []struct {
-// 				Login graphql.String
-// 				Url   graphql.String
-// 			}
-// 		} `graphql:"participants(first:30)"`
-// 	} `graphql:"... on PullRequest"`
-// }
-
-type pullRequestsOpened struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:pr author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
-}
-
-type pullRequestsMerged struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:pr author:@me merged:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
-}
-
-type issuesOpened struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:issue author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
-}
-
-type issuesClosed struct {
-	Search struct {
-		IssueCount graphql.Int
-		Nodes      []struct {
-			Issue struct {
-				Title graphql.String
-				Url   graphql.String
-			} `graphql:"... on Issue"`
-		}
-	} `graphql:"search(query: \"is:issue state:closed author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
-}
-
-func writeJSON(jsonStruct megaJSONStruct) {
-	jsonData, err := json.Marshal(jsonStruct.issOpened)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/issuesOpened.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.prMerged)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/prMerged.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.prOpened)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/prOpened.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.repoContrib)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/repoContribTo.json", jsonData, 0644)
-}
-
-func main() {
 	httpClient := SetupOAuth()
 	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
@@ -147,24 +48,57 @@ func main() {
 	// Call the API with the relevant queries
 	err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
 	CheckAPICallErr(err)
-	err = client.Query(context.Background(), &tempStruct.prMerged, nil)
-	CheckAPICallErr(err)
-	err = client.Query(context.Background(), &tempStruct.prOpened, nil)
-	CheckAPICallErr(err)
-	err = client.Query(context.Background(), &tempStruct.issOpened, nil)
-	CheckAPICallErr(err)
-	err = client.Query(context.Background(), &tempStruct.issClosed, nil)
-	CheckAPICallErr(err)
 
-	err = client.Query(context.Background(), &tempStruct.PRContributions, nil)
-	CheckAPICallErr(err)
+	jsonData, err := json.Marshal(tempStruct.repoContrib)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	err = client.Query(context.Background(), &tempStruct.PRCommits, nil)
-	CheckAPICallErr(err)
+	endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+	logCall("POST", endPoint, "200", startTime)
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, string(jsonData))
 
-	fmt.Println(tempStruct.issClosed)
+}
 
-	writeJSON(tempStruct)
+func main() {
+
+	if os.Getenv("secretKey") == "" {
+		log.Fatal("No secret key set")
+	}
+
+	r := mux.NewRouter()
+	r.HandleFunc("/", homeHandler).Methods("GET")
+	r.HandleFunc("/getfellow/{username}", getFellowHandler).Methods("POST")
+
+	http.ListenAndServe(":8080", r)
+
+	// httpClient := SetupOAuth()
+	// client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+
+	// var tempStruct megaJSONStruct
+
+	// // Call the API with the relevant queries
+	// err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
+	// CheckAPICallErr(err)
+	// err = client.Query(context.Background(), &tempStruct.prMerged, nil)
+	// CheckAPICallErr(err)
+	// err = client.Query(context.Background(), &tempStruct.prOpened, nil)
+	// CheckAPICallErr(err)
+	// err = client.Query(context.Background(), &tempStruct.issOpened, nil)
+	// CheckAPICallErr(err)
+	// err = client.Query(context.Background(), &tempStruct.issClosed, nil)
+	// CheckAPICallErr(err)
+
+	// err = client.Query(context.Background(), &tempStruct.PRContributions, nil)
+	// CheckAPICallErr(err)
+
+	// err = client.Query(context.Background(), &tempStruct.PRCommits, nil)
+	// CheckAPICallErr(err)
+
+	// fmt.Println(tempStruct.issClosed)
+
+	// writeJSON(tempStruct)
 
 	// fmt.Println(tempStruct.prOpened.Search.IssueCount)
 	// fmt.Println(tempStruct.prMerged)
