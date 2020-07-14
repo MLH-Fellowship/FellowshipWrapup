@@ -11,10 +11,46 @@ import (
 )
 
 type megaJSONStruct struct {
-	repoContrib repositoriesContributedTo
-	prOpened    pullRequestsOpened
-	prMerged    pullRequestsMerged
-	issOpened   issuesOpened
+	repoContrib     repositoriesContributedTo
+	prOpened        pullRequestsOpened
+	prMerged        pullRequestsMerged
+	issOpened       issuesOpened
+	issClosed       issuesClosed
+	PRContributions linesofCodeInPRs
+	PRCommits       commitsOnPRs
+}
+
+type linesofCodeInPRs struct {
+	Viewer struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url         graphql.String
+				MergeCommit struct {
+					Additions graphql.Int
+					Deletions graphql.Int
+				}
+			}
+		} `graphql:"pullRequests(first: 50, states:MERGED)"`
+	}
+}
+
+type commitsOnPRs struct {
+	Viewer struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url     graphql.String
+				Commits struct {
+					TotalCount graphql.Int
+				} `graphql:"commits(last: 150)"`
+				MergeCommit struct {
+					Additions graphql.Int
+					Deletions graphql.Int
+				}
+			}
+		} `graphql:"pullRequests(first: 50, states:MERGED)"`
+	}
 }
 
 type repositoriesContributedTo struct {
@@ -64,43 +100,51 @@ type issuesOpened struct {
 	} `graphql:"search(query: \"is:issue author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
 }
 
+type issuesClosed struct {
+	Search struct {
+		IssueCount graphql.Int
+		Nodes      []struct {
+			Issue struct {
+				Title graphql.String
+				Url   graphql.String
+			} `graphql:"... on Issue"`
+		}
+	} `graphql:"search(query: \"is:issue state:closed author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+}
+
 func writeJSON(jsonStruct megaJSONStruct) {
 	jsonData, err := json.Marshal(jsonStruct.issOpened)
 	if err != nil {
 		log.Fatal(err)
 	}
 	_ = ioutil.WriteFile("../data/issuesOpened.json", jsonData, 0644)
-	fmt.Println(string(jsonData))
 
 	jsonData, err = json.Marshal(jsonStruct.prMerged)
 	if err != nil {
 		log.Fatal(err)
 	}
 	_ = ioutil.WriteFile("../data/prMerged.json", jsonData, 0644)
-	fmt.Println(string(jsonData))
 
 	jsonData, err = json.Marshal(jsonStruct.prOpened)
 	if err != nil {
 		log.Fatal(err)
 	}
 	_ = ioutil.WriteFile("../data/prOpened.json", jsonData, 0644)
-	fmt.Println(string(jsonData))
 
 	jsonData, err = json.Marshal(jsonStruct.repoContrib)
 	if err != nil {
 		log.Fatal(err)
 	}
 	_ = ioutil.WriteFile("../data/repoContribTo.json", jsonData, 0644)
-	fmt.Println(string(jsonData))
 }
 
 func main() {
 	httpClient := SetupOAuth()
 	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
-	// Call the API with the relevant queries
 	var tempStruct megaJSONStruct
 
+	// Call the API with the relevant queries
 	err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
 	CheckAPICallErr(err)
 	err = client.Query(context.Background(), &tempStruct.prMerged, nil)
@@ -109,6 +153,16 @@ func main() {
 	CheckAPICallErr(err)
 	err = client.Query(context.Background(), &tempStruct.issOpened, nil)
 	CheckAPICallErr(err)
+	err = client.Query(context.Background(), &tempStruct.issClosed, nil)
+	CheckAPICallErr(err)
+
+	err = client.Query(context.Background(), &tempStruct.PRContributions, nil)
+	CheckAPICallErr(err)
+
+	err = client.Query(context.Background(), &tempStruct.PRCommits, nil)
+	CheckAPICallErr(err)
+
+	fmt.Println(tempStruct.issClosed)
 
 	writeJSON(tempStruct)
 
