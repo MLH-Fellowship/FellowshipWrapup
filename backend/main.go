@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -37,7 +38,11 @@ func main() {
 
 	err := client.Query(context.Background(), &query, nil)
 	if err != nil {
-		fmt.Println(err)
+		if os.Getenv("GRAPHQL_TOKEN") == "" {
+			log.Fatal("Error: You have not set your GRAPHQL_TOKEN envivironment variable. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to generate a token")
+		} else {
+			log.Fatal("Error: Your GRAPQL_TOKEN envivironment variable is invalid. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to regenerate a new token")
+		}
 	}
 
 	fmt.Println(query)
