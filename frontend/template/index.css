@@ -13,7 +13,14 @@ h6 {
   margin-top: 0;
   font-weight: 600;
 }
-
+@media (max-width: 565px) {
+  .section-heading {
+    font-size: 40px !important;
+  }
+}
+html {
+  scroll-behavior: smooth;
+}
 body {
   color: #777777;
   font-family: "Roboto", sans-serif;
@@ -194,4 +201,67 @@ body {
   font-size: 18px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+.progressTriangle-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  text-transform: uppercase;
+  margin: 0 0 30px;
+}
+.progressTriangle {
+  height: 7px;
+  background: #fff;
+  border-radius: 0;
+  margin-bottom: 30px;
+  overflow: visible;
+  box-shadow: none;
+}
+.progressTriangle .progressTriangle-bar {
+  background: #fff;
+  box-shadow: none;
+  border-bottom: 4px dotted #ff1140;
+  border-radius: 0;
+  position: relative;
+  -webkit-animation: animate-triangle 2s;
+  animation: animate-triangle 2s;
+}
+.progressTriangle .progressTriangle-bar:before {
+  content: "";
+  border-bottom: 20px solid #ff1140;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+}
+.progressTriangle-bar .progressTriangle-value {
+  font-size: 17px;
+  font-weight: 700;
+  color: #000;
+  position: absolute;
+  right: 0;
+}
+.progressTriangle.red .progressTriangle-bar,
+.progressTriangle.red .progressTriangle-bar:before {
+  border-bottom-color: #e73427;
+}
+.progressTriangle.blue .progressTriangle-bar,
+.progressTriangle.blue .progressTriangle-bar:before {
+  border-bottom-color: #1d539f;
+}
+.progressTriangle.yellow .progressTriangle-bar,
+.progressTriangle.yellow .progressTriangle-bar:before {
+  border-bottom-color: #f8b92a;
+}
+@-webkit-keyframes animate-triangle {
+  0% {
+    width: 0;
+  }
+}
+@keyframes animate-triangle {
+  0% {
+    width: 0;
+  }
 }

@@ -23,7 +23,7 @@
     </nav>
 
     <div class="container">
-        <section class="landing">
+        <section class="landing" id="top">
             <div class="row vertical-center">
                 <div class="col-lg-8 text-left pb-5">
                     <h1 class="display-1">{Full Name}</h1>
@@ -97,38 +97,85 @@
         </section>
         <section class="stats-section stats-counter mt-5" id="section-counter">
             <div class="container">
-                    <div class="col-md-7 text-left heading-section stats-animate">
-                        <h1 class="display-1">Milestones Hit</h1>
-                            <h1 class="bold-text bg-text">Achievements This Summer</h1>
-                    </div>
+                <div class="text-left stats-animate">
+                    <h1 class="display-1 section-heading">Milestones Hit</h1>
+                    <h1 class="bold-text bg-text">Achievements This Summer</h1>
+                </div>
                 <div class="row d-flex justify-content-start">
                     <div class="col-md-5 col-sm-5 counter-wrap stats-animate">
-                            <div class="text">
-                                <span class="stats-label">{k/Hundred} lines of code</span>
-                                <strong class="number" id="countLOC">0</strong>
-                            </div>
+                        <div class="text">
+                            <span class="stats-label">lines of code</span>
+                            <strong class="number" id="countLOC">0</strong>
+                        </div>
                     </div>
                 </div>
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-5 col-sm-5 counter-wrap stats-animate">
-                            <div class="text">
-                                <span class="stats-label">commits made</span>
-                                <strong class="number" id="countCommits">0</strong>
-                            </div>
+                        <div class="text">
+                            <span class="stats-label">commits made</span>
+                            <strong class="number" id="countCommits">0</strong>
+                        </div>
                     </div>
                 </div>
                 <div class="row d-flex justify-content-end">
                     <div class="col-md-5 counter-wrap stats-animate">
-                            <div class="text">
-                                <span class="stats-label">issues participated in</span>
-                                <strong class="number" id="countIssues">0</strong>
-                            </div>
+                        <div class="text">
+                            <span class="stats-label">issues participated</span>
+                            <strong class="number" id="countIssues">0</strong>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
-    </div>
-    </section>
+        <section>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h1 class="display-3 text-left mt-5 mb-5 section-heading">Progress compared to others in your team
+                        </h1>
+                        <h1 class="bold-text mb-5">PR's merged</h4>
+                    </div>
+                    <div class="col-md-12">
+                        <h3 class="progressTriangle-title">Kartik</h3>
+                        <div class="progressTriangle">
+                            <div class="progressTriangle-bar" style="width:75%;">
+                                <div class="progressTriangle-value">75%</div>
+                            </div>
+                        </div>
+
+                        <h3 class="progressTriangle-title">{fellowName}</h3>
+                        <div class="progressTriangle yellow">
+                            <div class="progressTriangle-bar" style="width:87%;">
+                                <div class="progressTriangle-value">{percentage}</div>
+                            </div>
+                        </div>
+
+                        <h3 class="progressTriangle-title">{fellowName}</h3>
+                        <div class="progressTriangle blue">
+                            <div class="progressTriangle-bar" style="width:57%;">
+                                <div class="progressTriangle-value">{percentage}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container mt-5">
+                <div class="row slider-text align-items-center text-center justify-content-center"
+                    data-scrollax-parent="true">
+                    <div class="col-md-12">
+                        <h2>Hope you had a great time!</h2>
+                        <h1 class="display-2 mb-3">Love from MLH
+                        </h1>
+                        <a href="#top"><ion-icon name="chevron-up-outline"></ion-icon></ion-icon></a>
+                        <br/>
+                        <br/>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
 
