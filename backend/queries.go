@@ -35,21 +35,17 @@ type linesofCodeInPRs struct {
 }
 
 type commitsOnPRs struct {
-	Viewer struct {
+	User struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
-				Url     graphql.String
-				Commits struct {
+				Url    graphql.String
+				Commit struct {
 					TotalCount graphql.Int
-				} `graphql:"commits(last: 150)"`
-				MergeCommit struct {
-					Additions graphql.Int
-					Deletions graphql.Int
 				}
 			}
 		} `graphql:"pullRequests(first: 50, states:MERGED)"`
-	}
+	} `graphql:"user(login:$username)"`
 }
 
 type repositoriesContributedTo struct {
