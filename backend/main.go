@@ -81,18 +81,28 @@ func getFellowHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	httpClient := SetupOAuth()
-	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+	// If user wasn't already queried
+	if !CheckUser(vars["username"]) {
+		fmt.Fprintf(w, "User not found, quering") // TODO: enhance message
 
-	var tempStruct megaJSONStruct
+		// Query user data
+		httpClient := SetupOAuth()
+		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
-	// Call the API with the relevant queries
-	err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
-	CheckAPICallErr(err)
+		var tempStruct megaJSONStruct
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(tempStruct.repoContrib)
+		// Call the API with the relevant queries
+		// TODO: correctly get json data here
+		err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
+		CheckAPICallErr(err)
+
+		jsonData, err := json.Marshal(tempStruct.repoContrib)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// TODO: save query data on user directory
+	}
+
 
 	endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
 	logCall("POST", endPoint, "200", startTime)
@@ -109,6 +119,7 @@ func main() {
 	r.HandleFunc("/", homeHandler).Methods("GET")
 	r.HandleFunc("/getfellow/{username}", getFellowHandler).Methods("POST")
 
+	log.Println("Starting web server on localhost:8080")
 	http.ListenAndServe(":8080", r)
 
 	// httpClient := SetupOAuth()
