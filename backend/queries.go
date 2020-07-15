@@ -25,6 +25,7 @@ type linesofCodeInPRs struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
 				Url         graphql.String
+				CreatedAt   graphql.String
 				MergeCommit struct {
 					Additions graphql.Int
 					Deletions graphql.Int
@@ -39,7 +40,8 @@ type commitsOnPRs struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
-				Url    graphql.String
+				Url    		graphql.String
+				CreatedAt   graphql.String
 				Commit struct {
 					TotalCount graphql.Int
 				}
@@ -53,8 +55,9 @@ type repositoriesContributedTo struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
-				Name graphql.String
-				Url  graphql.String
+				CreatedAt   graphql.String
+				Name 		graphql.String
+				Url  		graphql.String
 			}
 		} `graphql:"reposContributedTo(first: 25, contributionTypes:[PULL_REQUEST])"`
 	} `graphql:"user(login:$username)"`
@@ -66,7 +69,7 @@ type pullRequestsOpened struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
 				Url         graphql.String
-				PublishedAt graphql.String
+				CreatedAt   graphql.String
 			}
 		} `graphql:"pullRequests(first:25, states:OPEN)"`
 	} `graphql:"user(login:$username)"`
@@ -78,7 +81,7 @@ type pullRequestsMerged struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
 				Url         graphql.String
-				PublishedAt graphql.String
+				CreatedAt   graphql.String
 			}
 		} `graphql:"pullRequests(first:30, states:Merged)"`
 	} `graphql:"user(login:$username)"`
