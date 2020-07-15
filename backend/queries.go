@@ -49,16 +49,15 @@ type commitsOnPRs struct {
 }
 
 type repositoriesContributedTo struct {
-	Viewer struct {
-		Login                     graphql.String
-		RepositoriesContributedTo struct {
+	User struct {
+		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
 				Name graphql.String
 				Url  graphql.String
 			}
-		} `graphql:"repositoriesContributedTo(includeUserRepositories: true, first: 100, contributionTypes: [PULL_REQUEST])"`
-	}
+		} `graphql:"reposContributedTo(first: 25, contributionTypes:[PULL_REQUEST])"`
+	} `graphql:"user(login:$username)"`
 }
 
 type pullRequestsOpened struct {
