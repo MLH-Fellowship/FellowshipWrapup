@@ -92,7 +92,7 @@ type issuesClosed struct {
 				Url   graphql.String
 			} `graphql:"... on Issue"`
 		}
-	} `graphql:"search(query: \"is:issue state:closed author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+	} `graphql:"search(query: "is:issue state:closed author:$username created:2020-06-01..2020-08-30", type: ISSUE, first: 20)"`
 }
 
 type accountInformation struct {
@@ -104,7 +104,7 @@ type accountInformation struct {
 		Location   graphql.String
 		Url        graphql.String
 		WebsiteUrl graphql.String
-	} `graphql:"user(login: \"IamCathal\")"`
+	} `graphql:"user(login: $username)"`
 }
 
 func writeJSON(jsonStruct megaJSONStruct) {
