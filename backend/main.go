@@ -26,10 +26,10 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 		Body:   "Home page",
 	}
 
-	logCall("GET", "/", "200", startTime)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
+	logCall("GET", "/", "200", startTime)
 }
 
 func getFellowHandler(w http.ResponseWriter, req *http.Request) {
@@ -41,9 +41,6 @@ func getFellowHandler(w http.ResponseWriter, req *http.Request) {
 	authorized := isAuthorized(w, req)
 
 	if !authorized {
-		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-		logCall("POST", endPoint, "401", startTime)
-
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		res := response{
@@ -51,13 +48,13 @@ func getFellowHandler(w http.ResponseWriter, req *http.Request) {
 			Body:   "Incorrect secret given, you are not authorized to use this API",
 		}
 		json.NewEncoder(w).Encode(res)
+
+		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+		logCall("POST", endPoint, "401", startTime)
 		return
 	}
 
 	if vars["username"] == "" {
-		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-		logCall("POST", endPoint, "400", startTime)
-
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		res := response{
@@ -65,6 +62,9 @@ func getFellowHandler(w http.ResponseWriter, req *http.Request) {
 			Body:   "No username given",
 		}
 		json.NewEncoder(w).Encode(res)
+
+		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+		logCall("POST", endPoint, "400", startTime)
 		return
 	}
 
@@ -77,11 +77,12 @@ func getFellowHandler(w http.ResponseWriter, req *http.Request) {
 	err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
 	CheckAPICallErr(err)
 
-	endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-	logCall("POST", endPoint, "200", startTime)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(tempStruct.repoContrib)
+
+	endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+	logCall("POST", endPoint, "200", startTime)
 
 }
 
