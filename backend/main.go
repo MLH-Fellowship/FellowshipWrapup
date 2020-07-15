@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/shurcooL/graphql"
@@ -18,9 +17,55 @@ type response struct {
 	Body   string `json:"body"`
 }
 
-func homeHandler(w http.ResponseWriter, req *http.Request) {
-	startTime := time.Now().UnixNano() / int64(time.Millisecond)
+func verificationMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
 
+		if !isAuthorized(w, r) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			res := response{
+				Status: "error",
+				Body:   "Incorrect secret given, you are not authorized to use this API",
+			}
+			json.NewEncoder(w).Encode(res)
+
+			logCall("POST", r.RequestURI, "401")
+			return
+		}
+
+		if vars["username"] == "" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			res := response{
+				Status: "error",
+				Body:   "No username given",
+			}
+			json.NewEncoder(w).Encode(res)
+
+			logCall("POST", r.RequestURI, "400")
+			return
+		}
+
+		if !isValidUsername(vars["username"]) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			res := response{
+				Status: "error",
+				Body:   "Invalid username given",
+			}
+			json.NewEncoder(w).Encode(res)
+
+			logCall("POST", r.RequestURI, "400")
+			return
+		}
+
+		next.ServeHTTP(w, r)
+
+	})
+}
+
+func homeHandler(w http.ResponseWriter, req *http.Request) {
 	res := response{
 		Status: "success",
 		Body:   "Home page",
@@ -29,61 +74,18 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
-	logCall("GET", "/", "200", startTime)
+	logCall("GET", "/", "200")
+}
+
+func getFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
+
 }
 
 func getFellowHandler(w http.ResponseWriter, req *http.Request) {
-	startTime := time.Now().UnixNano() / int64(time.Millisecond)
-	// vars here is the {username} field in the router
 	vars := mux.Vars(req)
-	// Checks to see if a secret field is sent to make sure no robots
-	// are using up all our calls
-
-	if !isAuthorized(w, req) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		res := response{
-			Status: "error",
-			Body:   "Incorrect secret given, you are not authorized to use this API",
-		}
-		json.NewEncoder(w).Encode(res)
-
-		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-		logCall("POST", endPoint, "401", startTime)
-		return
-	}
-
-	if vars["username"] == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		res := response{
-			Status: "error",
-			Body:   "No username given",
-		}
-		json.NewEncoder(w).Encode(res)
-
-		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-		logCall("POST", endPoint, "400", startTime)
-		return
-	}
-
-	if !isValidUsername(vars["username"]) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		res := response{
-			Status: "error",
-			Body:   "Invalid username given",
-		}
-		json.NewEncoder(w).Encode(res)
-
-		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-		logCall("POST", endPoint, "400", startTime)
-		return
-	}
 
 	// If user wasn't already queried
 	if !CheckUser(vars["username"]) {
-		fmt.Fprintf(w, "User not found, quering") // TODO: enhance message
 
 		// Query user data
 		httpClient := SetupOAuth()
@@ -96,16 +98,13 @@ func getFellowHandler(w http.ResponseWriter, req *http.Request) {
 		err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
 		CheckAPICallErr(err)
 
-		jsonData, err := json.Marshal(tempStruct.repoContrib)
-		if err != nil {
-			log.Fatal(err)
-		}
 		// TODO: save query data on user directory
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(tempStruct.repoContrib)
+		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+		logCall("POST", endPoint, "200")
+
 	}
-
-
-	endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-	logCall("POST", endPoint, "200", startTime)
 
 }
 
@@ -118,6 +117,9 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", homeHandler).Methods("GET")
 	r.HandleFunc("/getfellow/{username}", getFellowHandler).Methods("POST")
+	// r.HandleFunc("/getfellow/accountinfo/{username}", getFellowAccountInfo).Methods("POST")
+
+	r.Use(verificationMiddleware)
 
 	log.Println("Starting web server on localhost:8080")
 	http.ListenAndServe(":8080", r)
