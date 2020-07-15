@@ -37,9 +37,8 @@ func FellowHandler(w http.ResponseWriter, req *http.Request) {
 	startTime := time.Now().UnixNano() / int64(time.Millisecond)
 	// vars here is the {username} field in the router
 	vars := mux.Vars(req)
-	// Checks to see if a secret field is sent to make sure no robots
-	// are using up all our calls
 
+	// Check is requests has a valid key
 	if !util.IsAuthorized(w, req) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -54,20 +53,7 @@ func FellowHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if vars["username"] == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		res := response{
-			Status: "error",
-			Body:   "No username given",
-		}
-		json.NewEncoder(w).Encode(res)
-
-		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-		util.LogCall("POST", endPoint, "400", startTime)
-		return
-	}
-
+	// Check if github username exists
 	if !util.IsValidUsername(vars["username"]) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
