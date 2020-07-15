@@ -67,38 +67,41 @@ func main() {
 		log.Fatal("No secret key set")
 	}
 
-	r := mux.NewRouter()
-	r.HandleFunc("/", homeHandler).Methods("GET")
-	r.HandleFunc("/getfellow/{username}", getFellowHandler).Methods("POST")
+	// r := mux.NewRouter()
+	// r.HandleFunc("/", homeHandler).Methods("GET")
+	// r.HandleFunc("/getfellow/{username}", getFellowHandler).Methods("POST")
 
-	http.ListenAndServe(":8080", r)
+	// http.ListenAndServe(":8080", r)
 
-	// httpClient := SetupOAuth()
-	// client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+	httpClient := SetupOAuth()
+	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
-	// var tempStruct megaJSONStruct
+	var tempStruct megaJSONStruct
 
-	// // Call the API with the relevant queries
-	// err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
-	// CheckAPICallErr(err)
-	// err = client.Query(context.Background(), &tempStruct.prMerged, nil)
-	// CheckAPICallErr(err)
-	// err = client.Query(context.Background(), &tempStruct.prOpened, nil)
-	// CheckAPICallErr(err)
-	// err = client.Query(context.Background(), &tempStruct.issOpened, nil)
-	// CheckAPICallErr(err)
-	// err = client.Query(context.Background(), &tempStruct.issClosed, nil)
-	// CheckAPICallErr(err)
+	// Call the API with the relevant queries
+	err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
+	CheckAPICallErr(err)
+	err = client.Query(context.Background(), &tempStruct.prMerged, nil)
+	CheckAPICallErr(err)
+	err = client.Query(context.Background(), &tempStruct.prOpened, nil)
+	CheckAPICallErr(err)
+	err = client.Query(context.Background(), &tempStruct.issOpened, nil)
+	CheckAPICallErr(err)
+	err = client.Query(context.Background(), &tempStruct.issClosed, nil)
+	CheckAPICallErr(err)
 
-	// err = client.Query(context.Background(), &tempStruct.PRContributions, nil)
-	// CheckAPICallErr(err)
+	err = client.Query(context.Background(), &tempStruct.PRContributions, nil)
+	CheckAPICallErr(err)
 
-	// err = client.Query(context.Background(), &tempStruct.PRCommits, nil)
-	// CheckAPICallErr(err)
+	err = client.Query(context.Background(), &tempStruct.PRCommits, nil)
+	CheckAPICallErr(err)
 
-	// fmt.Println(tempStruct.issClosed)
+	err = client.Query(context.Background(), &tempStruct.accountInfo, nil)
+	CheckAPICallErr(err)
 
-	// writeJSON(tempStruct)
+	fmt.Println(tempStruct.accountInfo)
+
+	writeJSON(tempStruct)
 
 	// fmt.Println(tempStruct.prOpened.Search.IssueCount)
 	// fmt.Println(tempStruct.prMerged)
