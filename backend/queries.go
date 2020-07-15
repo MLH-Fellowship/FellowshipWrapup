@@ -65,34 +65,27 @@ type repositoriesContributedTo struct {
 	}
 }
 
-type pullRequestsOpened struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:pr author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+type pullRequests struct {
+	User struct {
+		PullRequests struct {
+			Nodes []struct {
+				CreatedAt graphql.String
+				Merged    graphql.Boolean
+			}
+		} `graphql:"pullRequests(first:60 orderBy:{direction:DESC field:CREATED_AT})"`
+	} `graphql:"user(login: $username)"`
 }
 
-type pullRequestsMerged struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:pr author:@me merged:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
-}
-
-type issuesOpened struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:issue author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
-}
-
-type issuesClosed struct {
-	Search struct {
-		IssueCount graphql.Int
-		Nodes      []struct {
-			Issue struct {
-				Title graphql.String
-				Url   graphql.String
-			} `graphql:"... on Issue"`
-		}
-	} `graphql:"search(query: "is:issue state:closed author:$username created:2020-06-01..2020-08-30", type: ISSUE, first: 20)"`
+type issuesCreated struct {
+	User struct {
+		Issues struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				CreatedAt graphql.String
+				Closed    graphql.Boolean
+			}
+		} `graphql:"issues(first:60 orderBy:{direction:DESC field:CREATED_AT} filterBy:{since:"2020-06-01T00:00:00Z"})"`
+	} `graphql:"user(login: $username)"`
 }
 
 type accountInformation struct {
