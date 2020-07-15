@@ -20,7 +20,7 @@ type megaJSONStruct struct {
 }
 
 type linesofCodeInPRs struct {
-	Viewer struct {
+	User struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
@@ -31,7 +31,7 @@ type linesofCodeInPRs struct {
 				}
 			}
 		} `graphql:"pullRequests(first: 50, states:MERGED)"`
-	}
+	} `graphql:"user(login:$username)"`
 }
 
 type commitsOnPRs struct {
