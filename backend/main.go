@@ -38,9 +38,8 @@ func getFellowHandler(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	// Checks to see if a secret field is sent to make sure no robots
 	// are using up all our calls
-	authorized := isAuthorized(w, req)
 
-	if !authorized {
+	if !isAuthorized(w, req) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		res := response{
@@ -60,6 +59,20 @@ func getFellowHandler(w http.ResponseWriter, req *http.Request) {
 		res := response{
 			Status: "error",
 			Body:   "No username given",
+		}
+		json.NewEncoder(w).Encode(res)
+
+		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+		logCall("POST", endPoint, "400", startTime)
+		return
+	}
+
+	if !isValidUsername(vars["username"]) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		res := response{
+			Status: "error",
+			Body:   "Invalid username given",
 		}
 		json.NewEncoder(w).Encode(res)
 

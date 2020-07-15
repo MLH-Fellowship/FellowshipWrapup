@@ -54,6 +54,18 @@ func logCall(method, endpoint, status string, startTime int64) {
 	fmt.Printf("[%s] %s %s %s%s%s %sms\n", time.Now().Format("02-Jan-2006 15:04:05"), method, endpoint, statusColor, status, "\033[0m", delay)
 }
 
+func isValidUsername(username string) bool {
+	// Ping the github profile and if the header contains
+	// a non 200 the profile doesnt exist and we dont call the API
+	URL := fmt.Sprintf("https://github.com/%s", username)
+	res, err := http.Head(URL)
+
+	if res.StatusCode != 200 || err != nil {
+		return false
+	}
+	return true
+}
+
 func isAuthorized(w http.ResponseWriter, r *http.Request) bool {
 	decoder := json.NewDecoder(r.Body)
 	var req reqStruct
