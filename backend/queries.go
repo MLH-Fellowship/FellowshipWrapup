@@ -20,51 +20,50 @@ type megaJSONStruct struct {
 }
 
 type linesofCodeInPRs struct {
-	Viewer struct {
+	User struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
 				Url         graphql.String
+				CreatedAt   graphql.String
 				MergeCommit struct {
 					Additions graphql.Int
 					Deletions graphql.Int
 				}
 			}
 		} `graphql:"pullRequests(first: 50, states:MERGED)"`
-	}
+	} `graphql:"user(login:$username)"`
 }
 
 type commitsOnPRs struct {
-	Viewer struct {
+	User struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
-				Url     graphql.String
-				Commits struct {
+				Url    		graphql.String
+				CreatedAt   graphql.String
+				Commit struct {
 					TotalCount graphql.Int
-				} `graphql:"commits(last: 150)"`
-				MergeCommit struct {
-					Additions graphql.Int
-					Deletions graphql.Int
 				}
 			}
 		} `graphql:"pullRequests(first: 50, states:MERGED)"`
-	}
+	} `graphql:"user(login:$username)"`
 }
 
 type repositoriesContributedTo struct {
-	Viewer struct {
-		Login                     graphql.String
-		RepositoriesContributedTo struct {
+	User struct {
+		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
-				Name graphql.String
-				Url  graphql.String
+				CreatedAt   graphql.String
+				Name 		graphql.String
+				Url  		graphql.String
 			}
-		} `graphql:"repositoriesContributedTo(includeUserRepositories: true, first: 100, contributionTypes: [PULL_REQUEST])"`
-	}
+		} `graphql:"reposContributedTo(first: 25, contributionTypes:[PULL_REQUEST])"`
+	} `graphql:"user(login:$username)"`
 }
 
+<<<<<<< HEAD
 type pullRequests struct {
 	User struct {
 		PullRequests struct {
@@ -86,6 +85,55 @@ type issuesCreated struct {
 			}
 		} `graphql:"issues(first:60 orderBy:{direction:DESC field:CREATED_AT} filterBy:{since:"2020-06-01T00:00:00Z"})"`
 	} `graphql:"user(login: $username)"`
+=======
+type pullRequestsOpened struct {
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url         graphql.String
+				CreatedAt   graphql.String
+			}
+		} `graphql:"pullRequests(first:25, states:OPEN)"`
+	} `graphql:"user(login:$username)"`
+}
+
+type pullRequestsMerged struct {
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url         graphql.String
+				CreatedAt   graphql.String
+			}
+		} `graphql:"pullRequests(first:30, states:Merged)"`
+	} `graphql:"user(login:$username)"`
+}
+
+type issuesOpened struct {
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url       graphql.String
+				CreatedAt graphql.String
+			}
+		} `graphql:"issues(first:30)"`
+	} `graphql:"user(login:$username)"`
+}
+
+type issuesClosed struct {
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url       graphql.String
+				Closedat graphql.String
+			}
+		} `graphql:"issues(first:30)"`
+	} `graphql:"user(login:$username)"`
+}
+>>>>>>> 84eb9e70c6774641217a8f3e9e6421a67b2cc73a
 }
 
 type accountInformation struct {
