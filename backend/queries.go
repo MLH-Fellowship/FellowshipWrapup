@@ -73,27 +73,40 @@ type pullRequestsOpened struct {
 }
 
 type pullRequestsMerged struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:pr author:@me merged:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url         graphql.String
+				PublishedAt graphql.String
+			}
+		} `graphql:"pullRequests(first:30, states:Merged)"`
+	} `graphql:"user(login:$username)"`
 }
 
 type issuesOpened struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:issue author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url       graphql.String
+				CreatedAt graphql.String
+			}
+		} `graphql:"issues(first:30)"`
+	} `graphql:"user(login:$username)"`
 }
 
 type issuesClosed struct {
-	Search struct {
-		IssueCount graphql.Int
-		Nodes      []struct {
-			Issue struct {
-				Title graphql.String
-				Url   graphql.String
-			} `graphql:"... on Issue"`
-		}
-	} `graphql:"search(query: "is:issue state:closed author:$username created:2020-06-01..2020-08-30", type: ISSUE, first: 20)"`
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url       graphql.String
+				Closedat graphql.String
+			}
+		} `graphql:"issues(first:30)"`
+	} `graphql:"user(login:$username)"`
+}
 }
 
 type accountInformation struct {
