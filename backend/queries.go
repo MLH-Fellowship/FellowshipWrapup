@@ -61,9 +61,15 @@ type repositoriesContributedTo struct {
 }
 
 type pullRequestsOpened struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:pr author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url         graphql.String
+				PublishedAt graphql.String
+			}
+		} `graphql:"pullRequests(first:25, states:OPEN)"`
+	} `graphql:"user(login:$username)"`
 }
 
 type pullRequestsMerged struct {
