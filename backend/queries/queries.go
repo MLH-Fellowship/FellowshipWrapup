@@ -1,4 +1,4 @@
-package main
+package queries
 
 import (
 	"encoding/json"
@@ -8,15 +8,15 @@ import (
 	"github.com/shurcooL/graphql"
 )
 
-type megaJSONStruct struct {
-	repoContrib     repositoriesContributedTo
-	prOpened        pullRequestsOpened
-	prMerged        pullRequestsMerged
-	issOpened       issuesOpened
-	issClosed       issuesClosed
+type MegaJSONStruct struct {
+	RepoContrib     repositoriesContributedTo
+	PrOpened        pullRequestsOpened
+	PrMerged        pullRequestsMerged
+	IssOpened       issuesOpened
+	IssClosed       issuesClosed
 	PRContributions linesofCodeInPRs
 	PRCommits       commitsOnPRs
-	accountInfo     accountInformation
+	AccountInfo     accountInformation
 }
 
 type linesofCodeInPRs struct {
@@ -107,33 +107,33 @@ type accountInformation struct {
 	} `graphql:"user(login: \"IamCathal\")"`
 }
 
-func writeJSON(jsonStruct megaJSONStruct) {
+func writeJSON(jsonStruct MegaJSONStruct) {
 
-	jsonData, err := json.Marshal(jsonStruct.repoContrib)
+	jsonData, err := json.Marshal(jsonStruct.RepoContrib)
 	if err != nil {
 		log.Fatal(err)
 	}
 	_ = ioutil.WriteFile("../data/repoContribTo.json", jsonData, 0644)
 
-	jsonData, err = json.Marshal(jsonStruct.prMerged)
+	jsonData, err = json.Marshal(jsonStruct.PrMerged)
 	if err != nil {
 		log.Fatal(err)
 	}
 	_ = ioutil.WriteFile("../data/prMerged.json", jsonData, 0644)
 
-	jsonData, err = json.Marshal(jsonStruct.prOpened)
+	jsonData, err = json.Marshal(jsonStruct.PrOpened)
 	if err != nil {
 		log.Fatal(err)
 	}
 	_ = ioutil.WriteFile("../data/prOpened.json", jsonData, 0644)
 
-	jsonData, err = json.Marshal(jsonStruct.issOpened)
+	jsonData, err = json.Marshal(jsonStruct.IssOpened)
 	if err != nil {
 		log.Fatal(err)
 	}
 	_ = ioutil.WriteFile("../data/issuesOpened.json", jsonData, 0644)
 
-	jsonData, err = json.Marshal(jsonStruct.issClosed)
+	jsonData, err = json.Marshal(jsonStruct.IssClosed)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -151,7 +151,7 @@ func writeJSON(jsonStruct megaJSONStruct) {
 	}
 	_ = ioutil.WriteFile("../data/PRCommits.json", jsonData, 0644)
 
-	jsonData, err = json.Marshal(jsonStruct.accountInfo)
+	jsonData, err = json.Marshal(jsonStruct.AccountInfo)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"context"
@@ -91,7 +91,7 @@ func SetupOAuth() *http.Client {
 	return httpClient
 }
 
-func logCall(method, endpoint, status string, startTime int64) {
+func LogCall(method, endpoint, status string, startTime int64) {
 	endTime := time.Now().UnixNano() / int64(time.Millisecond)
 	roundTripTime := endTime - startTime
 	delay := strconv.FormatInt(roundTripTime, 10)
@@ -107,9 +107,16 @@ func logCall(method, endpoint, status string, startTime int64) {
 	fmt.Printf("[%s] %s %s %s%s%s %sms\n", time.Now().Format("02-Jan-2006 15:04:05"), method, endpoint, statusColor, status, "\033[0m", delay)
 }
 
-func isValidUsername(username string) bool {
-	// Ping the github profile and if the header contains
-	// a non 200 the profile doesnt exist and we dont call the API
+// IsValidUsername checks if a gihub username exists
+// Pings the github profile and if the header contains
+// a non 200 the profile doesnt exist and we dont call the API
+// Returns true if the user is found
+// Returns false otherwise
+func IsValidUsername(username string) bool {
+	// Empty username will yield 200 on github
+	if username == "" {
+		return false
+	}
 	URL := fmt.Sprintf("https://github.com/%s", username)
 	res, err := http.Head(URL)
 
@@ -119,7 +126,10 @@ func isValidUsername(username string) bool {
 	return true
 }
 
-func isAuthorized(w http.ResponseWriter, r *http.Request) bool {
+// IsAuthorized checks if a request contains the correct server key
+// Returns true if the provided key is equal to the evironment variable
+// Returns false otherwise
+func IsAuthorized(w http.ResponseWriter, r *http.Request) bool {
 	decoder := json.NewDecoder(r.Body)
 	var req reqStruct
 
