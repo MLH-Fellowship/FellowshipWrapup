@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -91,10 +90,7 @@ func SetupOAuth() *http.Client {
 	return httpClient
 }
 
-func logCall(method, endpoint, status string, startTime int64) {
-	endTime := time.Now().UnixNano() / int64(time.Millisecond)
-	roundTripTime := endTime - startTime
-	delay := strconv.FormatInt(roundTripTime, 10)
+func logCall(method, endpoint, status string) {
 	statusColor := "\033[0m"
 
 	// If the HTTP status given is 2XX, give it a nice
@@ -104,7 +100,7 @@ func logCall(method, endpoint, status string, startTime int64) {
 	} else {
 		statusColor = "\033[31m"
 	}
-	fmt.Printf("[%s] %s %s %s%s%s %sms\n", time.Now().Format("02-Jan-2006 15:04:05"), method, endpoint, statusColor, status, "\033[0m", delay)
+	fmt.Printf("[%s] %s %s %s%s%s\n", time.Now().Format("02-Jan-2006 15:04:05"), method, endpoint, statusColor, status, "\033[0m")
 }
 
 func isValidUsername(username string) bool {
