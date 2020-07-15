@@ -40,6 +40,20 @@ func getFellowHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// Check if user was already queried
+	if CheckUser(vars["username"]) {
+		// TODO: get json data here
+
+		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+		logCall("POST", endPoint, "200", startTime)
+		w.WriteHeader(http.StatusOK)
+		// fmt.Fprintf(w, string(jsonData))
+		fmt.Fprintf(w, "User found, using cached data") // TODO: add real json data here
+
+		return
+	}
+
+	// Query user data
 	httpClient := SetupOAuth()
 	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
@@ -71,6 +85,7 @@ func main() {
 	r.HandleFunc("/", homeHandler).Methods("GET")
 	r.HandleFunc("/getfellow/{username}", getFellowHandler).Methods("POST")
 
+	log.Println("Starting web server on localhost:8080")
 	http.ListenAndServe(":8080", r)
 
 	// httpClient := SetupOAuth()
