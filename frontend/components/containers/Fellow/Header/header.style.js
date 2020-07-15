@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const StyledHeader = styled.header`
   text-align: left;
-  margin-bottom: 3.5rem;
+  margin-bottom: 7.5rem;
 
   img {
     height: 20rem;

@@ -4,9 +4,18 @@
     "RepositoriesContributedTo": {
       "TotalCount": 16,
       "Nodes": [
-        { "Name": "beego", "Url": "https://github.com/astaxie/beego" },
-        { "Name": "howdoi", "Url": "https://github.com/gleitz/howdoi" },
-        { "Name": "click", "Url": "https://github.com/pallets/click" },
+        {
+          "Name": "beego",
+          "Url": "https://github.com/astaxie/beego"
+        },
+        {
+          "Name": "howdoi",
+          "Url": "https://github.com/gleitz/howdoi"
+        },
+        {
+          "Name": "click",
+          "Url": "https://github.com/pallets/click"
+        },
         {
           "Name": "github-dark-theme",
           "Url": "https://github.com/poychang/github-dark-theme"
@@ -15,12 +24,18 @@
           "Name": "Infinite-Rainbow-Rain",
           "Url": "https://github.com/Jared-Mullin/Infinite-Rainbow-Rain"
         },
-        { "Name": "typer", "Url": "https://github.com/tiangolo/typer" },
+        {
+          "Name": "typer",
+          "Url": "https://github.com/tiangolo/typer"
+        },
         {
           "Name": "HashcodeQualifier2020",
           "Url": "https://github.com/L33T-HashCode/HashcodeQualifier2020"
         },
-        { "Name": "comma10k", "Url": "https://github.com/commaai/comma10k" },
+        {
+          "Name": "comma10k",
+          "Url": "https://github.com/commaai/comma10k"
+        },
         {
           "Name": "MLH-Fellow-Map",
           "Url": "https://github.com/Korusuke/MLH-Fellow-Map"
@@ -37,8 +52,14 @@
           "Name": "0.5.1-howDoIDiscord",
           "Url": "https://github.com/MLH-Fellowship/0.5.1-howDoIDiscord"
         },
-        { "Name": "typer", "Url": "https://github.com/MLH-Fellowship/typer" },
-        { "Name": "howdoi", "Url": "https://github.com/MLH-Fellowship/howdoi" },
+        {
+          "Name": "typer",
+          "Url": "https://github.com/MLH-Fellowship/typer"
+        },
+        {
+          "Name": "howdoi",
+          "Url": "https://github.com/MLH-Fellowship/howdoi"
+        },
         {
           "Name": "mlh-localhost-gitkraken-code",
           "Url": "https://github.com/IamCathal/mlh-localhost-gitkraken-code"

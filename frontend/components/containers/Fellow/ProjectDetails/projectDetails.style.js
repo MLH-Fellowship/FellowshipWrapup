@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 export const StyledBackground = styled.section`
   padding: 2rem;
+  margin-bottom: 7.5rem;
 
   text-align: center;
 
@@ -9,6 +10,10 @@ export const StyledBackground = styled.section`
     font-size: 2rem;
     max-width: 90%;
     margin: 0 auto;
+  }
+
+  h3 {
+    margin-bottom: 0.5rem;
   }
 
   span {
