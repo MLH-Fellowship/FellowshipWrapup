@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -23,10 +25,61 @@ func CheckAPICallErr(err error) {
 		return
 	}
 	if os.Getenv("GRAPHQL_TOKEN") == "" {
-		log.Fatal("Error: You have not set your GRAPHQL_TOKEN envivironment variable. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to generate a token")
+		log.Fatal("Error: You have not set your GRAPHQL_TOKEN environment variable. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to generate a token")
 	}
 
 	log.Fatal(err)
+}
+
+// fileExists returns whether the given file or directory exists
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return false
+}
+
+// dirEmpty return s whether the given directory is empty
+func dirEmpty(path string) bool {
+	f, err := os.Open(path)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1)
+	if err == io.EOF {
+		return true
+	}
+	return false // Either not empty or error, suits both cases
+}
+
+// CheckUser checks if a user was already queried
+// Returns true if username is found on the /data dir
+// Returns false if username is not found
+// Returns false if username is found but is empty
+func CheckUser(username string) bool {
+	var userPath strings.Builder
+	// Build path string
+	userPath.WriteString("data/")
+	userPath.WriteString(username)
+
+	// Check if directory /data/{username} exists
+	if !fileExists(userPath.String()) {
+		return false
+	}
+
+	// Check if directory /data/{username} is empty
+	if dirEmpty(userPath.String()) {
+		os.Remove(userPath.String()) // Delete empty dir
+		return false
+	}
+
+	return true
 }
 
 // SetupOAuth test
