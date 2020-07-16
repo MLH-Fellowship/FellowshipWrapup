@@ -28,6 +28,7 @@ func CheckAPICallErr(err error) {
 		log.Fatal("Error: You have not set your GRAPHQL_TOKEN environment variable. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to generate a token")
 	}
 
+	// fmt.Println("printing err")
 	log.Fatal(err)
 }
 
@@ -62,22 +63,23 @@ func dirEmpty(path string) bool {
 // Returns true if username is found on the /data dir
 // Returns false if username is not found
 // Returns false if username is found but is empty
-func CheckUser(username string) bool {
+func CheckUser(username, fileName string) bool {
 	var userPath strings.Builder
 	// Build path string
-	userPath.WriteString("data/")
+	userPath.WriteString("../data/")
 	userPath.WriteString(username)
+	userPath.WriteString("/" + fileName)
 
-	// Check if directory /data/{username} exists
+	// Check if directory /data/{username}/{fileName} exists
 	if !fileExists(userPath.String()) {
 		return false
 	}
 
-	// Check if directory /data/{username} is empty
-	if dirEmpty(userPath.String()) {
-		os.Remove(userPath.String()) // Delete empty dir
-		return false
-	}
+	// // Check if directory /data/{username} is empty
+	// if dirEmpty(userPath.String()) {
+	// 	os.Remove(userPath.String()) // Delete empty dir
+	// 	return false
+	// }
 
 	return true
 }
