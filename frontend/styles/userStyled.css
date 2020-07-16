@@ -154,6 +154,9 @@ body {
   }
 }
 
+.landing-bg-text{
+  top: -200px !important;
+}
 .bg-text {
   position: absolute;
   margin-bottom: -1em;

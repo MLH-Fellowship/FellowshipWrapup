@@ -2,7 +2,7 @@ export default function ProgressRound(){
     return (
                         
     <div className="container mb-5">
-        <h1 className="col-lg-8 bold-text mb-5">My Most Used Languages</h1>
+        <h1 className="col-lg-8 bold-text mt-5 mb-5">My Most Used Languages</h1>
         <div className="row">
             
             <div className="col-md-3 col-sm-6 pb-5">

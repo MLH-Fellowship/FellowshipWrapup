@@ -1,7 +1,7 @@
 export default function ProgressTriangle() {
     return (
         <div className="container-fluid">
-            <h1 className="col-lg-8 bold-text mb-5">PR's merged</h1>
+            <h1 className="col-lg-8 bold-text mt-5 mb-5">PR's merged</h1>
             <div className="col-md-12">
                 <h3 className="progressTriangle-title">Merged/ Total PRs</h3>
                 <div className="progressTriangle">
