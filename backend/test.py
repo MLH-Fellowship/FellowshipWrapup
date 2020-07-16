@@ -1,18 +1,20 @@
 import requests
 import json
+import sys
 
-secret="1"
+host = "localhost"
+if len(sys.argv) > 1:
+    host = sys.argv[1]
+
+port = "8080"
+if len(sys.argv) > 2:
+    port = sys.argv[2]
+
+secret="1234"
 username="gmelodie"
+endpoints = ["accountinfo", "issuescreated", "pullrequests", "repocontributedto",
+             "pullrequestcommits", "prcontributions"]
 
-req = requests.post("http://localhost:8080/issueclosedcount/"+username, json={"secret":secret})
-req = requests.post("http://localhost:8080/accountinfo/"+username, json={"secret":secret})
-req = requests.post("http://localhost:8080/issuescreated/"+username, json={"secret":secret})
-req = requests.post("http://localhost:8080/pullrequests/"+username, json={"secret":secret})
-req = requests.post("http://localhost:8080/repocontributedto/"+username, json={"secret":secret})
-req = requests.post("http://localhost:8080/pullrequestcommits/"+username, json={"secret":secret})
-req = requests.post("http://localhost:8080/prcontributions/"+username, json={"secret":secret})
-
-
-
-
-print(req.json())
+for endpoint in endpoints:
+    req = requests.post("http://"+host+":"+port+"/"+endpoint+"/"+username, json={"secret":secret})
+    print(req.json())
