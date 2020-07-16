@@ -1,14 +1,14 @@
-package main
+package util
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -91,10 +91,7 @@ func SetupOAuth() *http.Client {
 	return httpClient
 }
 
-func logCall(method, endpoint, status string, startTime int64) {
-	endTime := time.Now().UnixNano() / int64(time.Millisecond)
-	roundTripTime := endTime - startTime
-	delay := strconv.FormatInt(roundTripTime, 10)
+func LogCall(method, endpoint, status string) {
 	statusColor := "\033[0m"
 
 	// If the HTTP status given is 2XX, give it a nice
@@ -104,33 +101,48 @@ func logCall(method, endpoint, status string, startTime int64) {
 	} else {
 		statusColor = "\033[31m"
 	}
-	fmt.Printf("[%s] %s %s %s%s%s %sms\n", time.Now().Format("02-Jan-2006 15:04:05"), method, endpoint, statusColor, status, "\033[0m", delay)
+	fmt.Printf("[%s] %s %s %s%s%s\n", time.Now().Format("02-Jan-2006 15:04:05"), method, endpoint, statusColor, status, "\033[0m")
 }
 
-func isValidUsername(username string) bool {
-	// Ping the github profile and if the header contains
-	// a non 200 the profile doesnt exist and we dont call the API
+// IsValidUsername checks if a gihub username exists
+// Pings the github profile and if the header contains
+// a non 200 the profile doesnt exist and we dont call the API
+// Returns true if the user is found
+// Returns false otherwise
+func IsValidUsername(username string) (bool, error) {
+	// Empty username will yield 200 on github
+	if username == "" {
+		return false, errors.New("Empty username")
+	}
 	URL := fmt.Sprintf("https://github.com/%s", username)
 	res, err := http.Head(URL)
-
-	if res.StatusCode != 200 || err != nil {
-		return false
+	if err != nil {
+		return false, err
 	}
-	return true
+
+	if res.StatusCode != 200 {
+		return false, errors.New("Invalid username")
+	}
+
+	return true, nil
 }
 
-func isAuthorized(w http.ResponseWriter, r *http.Request) bool {
+// IsAuthorized checks if a request contains the correct server key
+// Returns true if the provided key is equal to the evironment variable
+// Returns false and error otherwise
+func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
 	decoder := json.NewDecoder(r.Body)
 	var req reqStruct
 
 	err := decoder.Decode(&req)
 	if err != nil {
-		// couldn't decode the POST data into the right
-		// JSON object
-		return false
+		// couldn't decode the POST data into JSON
+		return false, err
 	}
-	if req.Secret == os.Getenv("secretKey") {
-		return true
+
+	if req.Secret != os.Getenv("secretKey") {
+		fmt.Println(req.Secret)
+		return false, errors.New("Incorrect 'secret'")
 	}
-	return false
+	return true, nil
 }
