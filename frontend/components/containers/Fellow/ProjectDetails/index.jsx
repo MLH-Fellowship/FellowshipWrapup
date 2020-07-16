@@ -8,14 +8,6 @@ import IosMailOutline from "react-ionicons/lib/IosMailOutline";
 export default function ProjectDetails() {
   return (
     <>
-     {/* <StyledBackground>
-       <div className="text-container">
-         <h1>
-           During the past 3 months I've contributed to projects like{" "}
-           <span>[project]</span> &<span>[project]</span>
-         </h1>
-       </div>
-     </StyledBackground> */}
     <h4 className="display-4">A little about me</h4>
     <div className="row">
         <div className="col-lg-6 wrap text-left">
