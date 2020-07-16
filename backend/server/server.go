@@ -43,7 +43,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			}
 			json.NewEncoder(w).Encode(res)
 
-			util.LogCall("POST", r.RequestURI, "400")
+			util.LogCall(r.Method, r.RequestURI, "400")
 			return
 		}
 
