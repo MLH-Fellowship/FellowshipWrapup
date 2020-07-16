@@ -1,78 +1,68 @@
-import styled from "styled-components";
 import Countup from "react-countup";
 
 export default function Milestones() {
   return (
-    <StyledBackground>
-      <div className="text-container">
-        <h1>Some of the milestones I hit during the fellowship</h1>
-      </div>
+    // Keeping the old code in until designs are finalized
+    // <StyledBackground>
+    //   <div className="text-container">
+    //     <h1>Some of the milestones I hit during the fellowship</h1>
+    //   </div>
 
-      <div className="list">
-        <div className="list-item">
-          <span>
-            <Countup end={30} duration={2} />
-          </span>{" "}
-          <br />
-          lines of code
-        </div>
-        <div className="list-item">
-          <span>
-            <Countup end={30} duration={3} />
-          </span>{" "}
-          <br /> commits made
-        </div>
-        <div className="list-item">
-          <span>
-            <Countup end={30} duration={4} />
-          </span>{" "}
-          <br />
-          issues participated
-        </div>
-      </div>
-    </StyledBackground>
+    //   <div className="list">
+    //     <div className="list-item">
+    //       <span>
+    //         <Countup end={30} duration={2} />
+    //       </span>{" "}
+    //       <br />
+    //       lines of code
+    //     </div>
+    //     <div className="list-item">
+    //       <span>
+    //         <Countup end={30} duration={3} />
+    //       </span>{" "}
+    //       <br /> commits made
+    //     </div>
+    //     <div className="list-item">
+    //       <span>
+    //         <Countup end={30} duration={4} />
+    //       </span>{" "}
+    //       <br />
+    //       issues participated
+    //     </div>
+    //   </div>
+    // </StyledBackground>
+    <section className="stats-section stats-counter mt-5">
+            <div className="container-fluid">
+                <div className="text-left stats-animate">
+                    <h1 className="display-1 section-heading">Milestones Hit</h1>
+                    <h1 className="bold-text bg-text">Achievements This Summer</h1>
+                </div>
+                <div className="row d-flex justify-content-start">
+                    <div className="col-md-7 col-sm-7">
+                        <div className="text">
+                            <span className="stats-label">lines of code</span>
+                            <strong className="number" id="countLOC"><Countup end={130} duration={4} />K</strong>
+                        </div>
+                    </div>
+                </div>
+                <div className="row d-flex justify-content-center">
+                    <div className="col-md-7 col-sm-7">
+                        <div className="text">
+                            <span className="stats-label">commits made</span>
+                            <strong className="number" id="countCommits"><Countup end={70} duration={4} /></strong>
+                        </div>
+                    </div>
+                </div>
+                <div className="row d-flex justify-content-end">
+                    <div className="col-md-7  col-sm-7">
+                        <div className="text">
+                            <span className="stats-label">issues opened</span>
+                            <strong className="number" id="countIssues"><Countup end={130} duration={4} /></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      </section>
   );
 }
 
-const StyledBackground = styled.section`
-  text-align: center;
-
-  padding: 2rem;
-
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .text-container {
-    max-width: 60rem;
-    margin: 0 auto;
-  }
-
-  .list {
-    display: flex;
-    justify-content: center;
-  }
-
-  .list-item {
-    color: var(--color-text);
-
-    padding: 2.5rem 1.5rem 2rem 1.5rem;
-    border-radius: 8px;
-    width: 14rem;
-
-    -webkit-box-shadow: 0px 1px 80px -16px rgba(130, 130, 130, 0.45);
-    -moz-box-shadow: 0px 1px 80px -16px rgba(130, 130, 130, 0.45);
-    box-shadow: 0px 1px 80px -16px rgba(130, 130, 130, 0.45);
-
-    &:nth-child(2) {
-      margin: 0 2rem;
-    }
-
-    span {
-      font-size: 3.5rem;
-      font-weight: 700;
-      color: var(--color-secondary);
-    }
-  }
-`;

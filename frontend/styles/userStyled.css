@@ -23,6 +23,15 @@ body {
   position: relative;
 }
 
+.headerImg{
+  height: 22rem;
+  border-radius: 8px;
+  margin: 0 auto 1rem auto;
+
+  -webkit-box-shadow: 0px 1px 80px -16px rgba(130, 130, 130, 1);
+  -moz-box-shadow: 0px 1px 80px -16px rgba(130, 130, 130, 1);
+  box-shadow: 0px 1px 80px -16px rgba(130, 130, 130, 1);
+}
 .vertical-center {
   min-height: 100%; /* Fallback for browsers do NOT support vh unit */
   min-height: 100vh; /* These two lines are counted as one :-)       */
@@ -175,7 +184,7 @@ body {
 .stats-counter .text strong.number {
   font-weight: 400;
   font-size: 180px;
-  color: #2f89fc;
+  color: #f8b92a;
 }
 @media (max-width: 767.98px) {
   .stats-counter .text strong.number {

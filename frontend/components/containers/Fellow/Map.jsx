@@ -6,8 +6,7 @@ export default function Map() {
       <div className="text-container">
         <h1>
           With over 140+ students from over 23 regions and 15 different
-          timezones, I was able to network and reach out to other students and
-          fellows from all around the world.
+          timezones, I was able to network and reach out to fellows from all around the world!
         </h1>
       </div>
 
@@ -22,6 +21,8 @@ const StyledBackground = styled.div`
   padding: 1.5rem;
   text-align: center;
   margin-bottom: 5.5rem;
+  background-color: #f5f5f9;
+  border-radius: 8px;
 
   h1 {
     font-size: 2rem;
