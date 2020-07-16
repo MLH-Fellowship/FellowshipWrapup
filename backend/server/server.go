@@ -20,6 +20,9 @@ type response struct {
 	Body   string `json:"body"`
 }
 
+// VerificationMiddleware is a middlware to handle authentication
+// and checking is the username is valid before being passed onto
+// the requested endpoint
 func VerificationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -55,6 +58,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// HomeHandler serves the content for the home page
 func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	res := response{
 		Status: "success",
@@ -64,17 +68,16 @@ func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
-	util.LogCall("GET", "/", "200")
+	util.LogCall(req.Method, req.RequestURI, "200")
 }
 
-// GetFellowLinesOfCodeInPRs get the issues created
+// GetFellowLinesOfCodeInPRs Get the additions and deletions of all
+// PRs for a given user
 func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	// If user wasn't already queried
 	if !util.CheckUser(vars["username"], "prContributions.json") {
-		fmt.Println("Not Existing")
-		// Query user data
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
@@ -105,10 +108,7 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 		util.LogCall(req.Method, req.RequestURI, "200")
 		return
 	}
-
-	fmt.Println("Existing")
-
-	// get the cache and serve it
+	// Serve from cache instead
 	fileLocation := fmt.Sprintf("../data/%s/prContributions.json", vars["username"])
 	content, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
@@ -130,14 +130,11 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// GetFellowPullRequestCommits get the issues created
+// GetFellowPullRequestCommits gets the commits from pull requests
 func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	// If user wasn't already queried
 	if !util.CheckUser(vars["username"], "prCommits.json") {
-		fmt.Println("Not Existing")
-		// Query user data
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
@@ -168,10 +165,7 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 		util.LogCall(req.Method, req.RequestURI, "200")
 		return
 	}
-
-	fmt.Println("Existing")
-
-	// get the cache and serve it
+	// Serve from cache instead
 	fileLocation := fmt.Sprintf("../data/%s/prCommits.json", vars["username"])
 	content, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
@@ -193,14 +187,12 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// GetFellowRepoContributions get the issues created
+// GetFellowRepoContributions get a list of all repositories a user has
+// contributed to
 func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	// If user wasn't already queried
 	if !util.CheckUser(vars["username"], "repoContribs.json") {
-		fmt.Println("Not Existing")
-		// Query user data
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
@@ -232,9 +224,7 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println("Existing")
-
-	// get the cache and serve it
+	// Serve from cache instead
 	fileLocation := fmt.Sprintf("../data/%s/repoContribs.json", vars["username"])
 	content, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
@@ -256,14 +246,11 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// GetFellowPullRequests get the issues created
+// GetFellowPullRequests get a list of the most recent PRs made by a user
 func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	// If user wasn't already queried
 	if !util.CheckUser(vars["username"], "pullRequests.json") {
-		fmt.Println("Not Existing")
-		// Query user data
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
@@ -295,9 +282,7 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println("Existing")
-
-	// get the cache and serve it
+	// Serve from cache instead
 	fileLocation := fmt.Sprintf("../data/%s/pullRequests.json", vars["username"])
 	content, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
@@ -319,14 +304,12 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// GetFellowIssuesCreated get the issues created
+// GetFellowIssuesCreated get a list of the recent issues created by a user
 func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	// If user wasn't already queried
 	if !util.CheckUser(vars["username"], "issuesCreated.json") {
 
-		// Query user data
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
@@ -357,8 +340,7 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 		util.LogCall(req.Method, req.RequestURI, "200")
 		return
 	}
-
-	// get the cache and serve it
+	// Serve from cache instead
 	fileLocation := fmt.Sprintf("../data/%s/issuesCreated.json", vars["username"])
 	content, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
@@ -380,13 +362,11 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 
 }
 
-// GetFellowAccountInfo hell
+// GetFellowAccountInfo get account information for a given user
 func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	// If user wasn't already queried
 	if !util.CheckUser(vars["username"], "accountInfo.json") {
-		// Query user data
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
@@ -417,7 +397,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 		util.LogCall(req.Method, req.RequestURI, "200")
 		return
 	}
-	// get the cache and serve it
+	// Serve from cache instead
 	fileLocation := fmt.Sprintf("../data/%s/accountInfo.json", vars["username"])
 	content, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
@@ -438,31 +418,3 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
-
-// FellowHandler ypup
-// func FellowHandler(w http.ResponseWriter, req *http.Request) {
-// 	vars := mux.Vars(req)
-
-// 	// If user wasn't already queried
-// 	if !util.CheckUser(vars["username"]) {
-
-// 		// Query user data
-// 		httpClient := util.SetupOAuth()
-// 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
-
-// 		var tempStruct queries.MegaJSONStruct
-
-// 		// Call the API with the relevant queries
-// 		// TODO: correctly get json data here
-// 		err := client.Query(context.Background(), &tempStruct.RepoContrib, nil)
-// 		util.CheckAPICallErr(err)
-
-// 		// TODO: save query data on user directory
-// 		w.Header().Set("Content-Type", "application/json")
-// 		json.NewEncoder(w).Encode(tempStruct.RepoContrib)
-// 		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-// 		util.LogCall("POST", endPoint, "200")
-
-// 	}
-
-// }
