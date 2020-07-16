@@ -20,6 +20,9 @@ func main() {
 	r.HandleFunc("/getfellow/accountinfo/{username}", server.GetFellowAccountInfo).Methods("POST")
 	r.HandleFunc("/getfellow/issuescreated/{username}", server.GetFellowIssuesCreated).Methods("POST")
 	r.HandleFunc("/getfellow/pullrequests/{username}", server.GetFellowPullRequests).Methods("POST")
+	r.HandleFunc("/getfellow/repocontributedto/{username}", server.GetFellowRepoContributions).Methods("POST")
+	r.HandleFunc("/getfellow/pullrequestcommits/{username}", server.GetFellowPullRequestCommits).Methods("POST")
+	r.HandleFunc("/getfellow/prcontributions/{username}", server.GetFellowLinesOfCodeInPRs).Methods("POST")
 	r.Use(server.VerificationMiddleware)
 
 	log.Println("Starting web server on localhost:8080")

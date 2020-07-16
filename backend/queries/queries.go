@@ -38,9 +38,9 @@ type commitsOnPRs struct {
 				CreatedAt graphql.String
 				Commit    struct {
 					TotalCount graphql.Int
-				}
+				} `graphql:"commits(first: 1)"`
 			}
-		} `graphql:"pullRequests(first: 50, states:MERGED)"`
+		} `graphql:"pullRequests(first: 30, states:MERGED)"`
 	} `graphql:"user(login:$username)"`
 }
 
@@ -63,8 +63,9 @@ type pullRequests struct {
 			Nodes []struct {
 				CreatedAt graphql.String
 				Merged    graphql.Boolean
+				Url       graphql.String
 			}
-		} `graphql:"pullRequests(first:60 orderBy:{direction:DESC field:CREATED_AT})"`
+		} `graphql:"pullRequests(first:30)"`
 	} `graphql:"user(login: $username)"`
 }
 
