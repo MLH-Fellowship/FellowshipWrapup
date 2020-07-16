@@ -28,6 +28,12 @@ const StyledBackground = styled.div`
     font-size: 2rem;
     margin-bottom: 1.5rem;
   }
+  
+  @media (max-width: 412px) {
+    h1 {
+      font-size: 1.2rem;
+    }
+  }
 
   .text-container {
     max-width: 50rem;

@@ -42,13 +42,15 @@ body {
 .social-links li {
   list-style: none;
   display: inline-block;
+  padding-right: 4px;
 }
 .social-links li a {
   height: 50px;
   width: 50px;
   display: block;
   float: left;
-  background: rgba(255, 255, 255, 0.05);
+  background: #f8b92a;
+  color: white;
   border-radius: 50%;
   position: relative;
 }
@@ -63,7 +65,7 @@ body {
   transition: all 0.3s;
 }
 .social-links li a:hover {
-  color: #111;
+  color: rgba(0, 0, 0, 0.05);
   transition: all 0.3s;
 }
 
@@ -100,7 +102,9 @@ body {
     display: none;
   }
 }
-
+.about-p{
+  font-size: 18px;
+}
 .progress-style {
   width: 400px;
 }
@@ -135,6 +139,12 @@ body {
 
 .interests .icon-box:hover {
   background: rgba(122, 122, 122, 0.12);
+}
+
+@media (max-width: 536px) {
+  .section-heading{
+    font-size: 3rem !important;
+  }
 }
 
 .bg-text {

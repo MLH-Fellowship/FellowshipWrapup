@@ -31,8 +31,8 @@ export default function Header() {
     <section class="landing" id="top">
       <div class="row vertical-center">
           <div class="col-lg-8 text-left pb-5">
-              <h1 class="display-1">Full Name</h1>
-              <p class="lead pl-2">Position or job profile</p>
+              <h1 class="display-1">Sebastian Crossa</h1>
+              <p class="lead pl-2">Full Stack Developer</p>
           </div>
           <div class="col-lg-4 text-center pb-5">
             <img className="headerImg mb-3" style={{ margin: "0 auto" }} src="/profile.jpg" alt="User profile pic"/>
