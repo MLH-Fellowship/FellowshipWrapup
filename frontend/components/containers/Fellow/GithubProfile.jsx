@@ -21,12 +21,12 @@ export default function GithubProfile({ info }) {
 export const StyledBackground = styled.div`
   display: flex;
   align-items: center;
+  text-align:left;
 
   border: 1px solid gray;
   border-radius: 8px;
 
   padding: 1rem;
-  max-width: 20.5rem;
 
   color: gray;
   background-color: var(--color-gray);
