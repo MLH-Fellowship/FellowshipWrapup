@@ -2,12 +2,12 @@ import styled from "styled-components";
 
 export const StyledHeader = styled.header`
   text-align: left;
-  margin-bottom: 7.5rem;
+  margin-bottom: 7rem;
 
   img {
-    height: 20rem;
+    height: 22rem;
     border-radius: 8px;
-    margin: 0 auto;
+    margin: 0 auto 1rem auto;
 
     -webkit-box-shadow: 0px 1px 80px -16px rgba(130, 130, 130, 1);
     -moz-box-shadow: 0px 1px 80px -16px rgba(130, 130, 130, 1);
@@ -23,6 +23,7 @@ export const StyledHeader = styled.header`
     h1 {
       font-weight: 600;
       font-size: 1.7rem;
+      margin-bottom: 0.5rem;
     }
 
     h2 {
@@ -30,6 +31,11 @@ export const StyledHeader = styled.header`
       font-size: 2rem;
     }
 
+    a {
+      text-decoration: underline;
+    }
+
+    a,
     span {
       color: var(--color-main);
     }

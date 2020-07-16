@@ -1,7 +1,9 @@
 import { Container } from "../../styles/fellow.style";
-import Navbar from "../../components/layout/Navbar";
+
 import Header from "../../components/containers/Fellow/Header";
 import ProjectDetails from "../../components/containers/Fellow/ProjectDetails";
+import Milestones from "../../components/containers/Fellow/Milestones";
+import Map from "../../components/containers/Fellow/Map";
 
 export default function Fellow() {
   return (
@@ -18,7 +20,9 @@ export default function Fellow() {
 
       <Container>
         <Header />
+        <Map />
         <ProjectDetails />
+        <Milestones />
       </Container>
     </>
   );
