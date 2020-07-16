@@ -3,12 +3,12 @@ package util
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -91,10 +91,7 @@ func SetupOAuth() *http.Client {
 	return httpClient
 }
 
-func LogCall(method, endpoint, status string, startTime int64) {
-	endTime := time.Now().UnixNano() / int64(time.Millisecond)
-	roundTripTime := endTime - startTime
-	delay := strconv.FormatInt(roundTripTime, 10)
+func LogCall(method, endpoint, status string) {
 	statusColor := "\033[0m"
 
 	// If the HTTP status given is 2XX, give it a nice
@@ -104,7 +101,7 @@ func LogCall(method, endpoint, status string, startTime int64) {
 	} else {
 		statusColor = "\033[31m"
 	}
-	fmt.Printf("[%s] %s %s %s%s%s %sms\n", time.Now().Format("02-Jan-2006 15:04:05"), method, endpoint, statusColor, status, "\033[0m", delay)
+	fmt.Printf("[%s] %s %s %s%s%s\n", time.Now().Format("02-Jan-2006 15:04:05"), method, endpoint, statusColor, status, "\033[0m")
 }
 
 // IsValidUsername checks if a gihub username exists
@@ -128,19 +125,20 @@ func IsValidUsername(username string) bool {
 
 // IsAuthorized checks if a request contains the correct server key
 // Returns true if the provided key is equal to the evironment variable
-// Returns false otherwise
-func IsAuthorized(w http.ResponseWriter, r *http.Request) bool {
+// Returns false and error otherwise
+func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
 	decoder := json.NewDecoder(r.Body)
 	var req reqStruct
 
 	err := decoder.Decode(&req)
 	if err != nil {
-		// couldn't decode the POST data into the right
-		// JSON object
-		return false
+		// couldn't decode the POST data into JSON
+		return false, err
 	}
-	if req.Secret == os.Getenv("secretKey") {
-		return true
+
+	if req.Secret != os.Getenv("secretKey") {
+		fmt.Println(req.Secret)
+		return false, errors.New("Incorrect 'secret'")
 	}
-	return false
+	return true, nil
 }

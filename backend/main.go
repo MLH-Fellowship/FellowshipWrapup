@@ -18,6 +18,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", server.HomeHandler).Methods("GET")
 	r.HandleFunc("/getfellow/{username}", server.FellowHandler).Methods("POST")
+	r.Use(server.VerificationMiddleware)
 
 	log.Println("Starting web server on localhost:8080")
 	http.ListenAndServe(":8080", r)

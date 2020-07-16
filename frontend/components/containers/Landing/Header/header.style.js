@@ -43,7 +43,7 @@ export const StyledHeader = styled.header`
     align-items: center;
     max-width: 25rem;
     margin: 0 auto;
-    padding-right: 0.5rem;
+    padding-right: 1.5rem;
 
     border-radius: 5px;
 
@@ -64,7 +64,7 @@ export const StyledHeader = styled.header`
     button {
       height: 2rem;
       width: 6rem;
-      padding: 0.5rem 1rem;
+      padding: 0 1rem;
       border-radius: 5px;
       font-weight: 600;
 

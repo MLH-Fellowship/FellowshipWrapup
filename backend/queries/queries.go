@@ -10,89 +10,78 @@ import (
 
 type MegaJSONStruct struct {
 	RepoContrib     repositoriesContributedTo
-	PrOpened        pullRequestsOpened
-	PrMerged        pullRequestsMerged
-	IssOpened       issuesOpened
-	IssClosed       issuesClosed
+	Pr              pullRequests
+	IssCreated      issuesCreated
 	PRContributions linesofCodeInPRs
 	PRCommits       commitsOnPRs
 	AccountInfo     accountInformation
 }
 
 type linesofCodeInPRs struct {
-	Viewer struct {
+	User struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
 				Url         graphql.String
+				CreatedAt   graphql.String
 				MergeCommit struct {
 					Additions graphql.Int
 					Deletions graphql.Int
 				}
 			}
 		} `graphql:"pullRequests(first: 50, states:MERGED)"`
-	}
+	} `graphql:"user(login:$username)"`
 }
 
 type commitsOnPRs struct {
-	Viewer struct {
+	User struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
-				Url     graphql.String
-				Commits struct {
+				Url       graphql.String
+				CreatedAt graphql.String
+				Commit    struct {
 					TotalCount graphql.Int
-				} `graphql:"commits(last: 150)"`
-				MergeCommit struct {
-					Additions graphql.Int
-					Deletions graphql.Int
 				}
 			}
 		} `graphql:"pullRequests(first: 50, states:MERGED)"`
-	}
+	} `graphql:"user(login:$username)"`
 }
 
 type repositoriesContributedTo struct {
-	Viewer struct {
-		Login                     graphql.String
-		RepositoriesContributedTo struct {
+	User struct {
+		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
-				Name graphql.String
-				Url  graphql.String
+				CreatedAt graphql.String
+				Name      graphql.String
+				Url       graphql.String
 			}
-		} `graphql:"repositoriesContributedTo(includeUserRepositories: true, first: 100, contributionTypes: [PULL_REQUEST])"`
-	}
+		} `graphql:"reposContributedTo(first: 25, contributionTypes:[PULL_REQUEST])"`
+	} `graphql:"user(login:$username)"`
 }
 
-type pullRequestsOpened struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:pr author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+type pullRequests struct {
+	User struct {
+		PullRequests struct {
+			Nodes []struct {
+				CreatedAt graphql.String
+				Merged    graphql.Boolean
+			}
+		} `graphql:"pullRequests(first:60 orderBy:{direction:DESC field:CREATED_AT})"`
+	} `graphql:"user(login: $username)"`
 }
 
-type pullRequestsMerged struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:pr author:@me merged:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
-}
-
-type issuesOpened struct {
-	Search struct {
-		IssueCount graphql.Int
-	} `graphql:"search(query: \"is:issue author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
-}
-
-type issuesClosed struct {
-	Search struct {
-		IssueCount graphql.Int
-		Nodes      []struct {
-			Issue struct {
-				Title graphql.String
-				Url   graphql.String
-			} `graphql:"... on Issue"`
-		}
-	} `graphql:"search(query: \"is:issue state:closed author:@me created:2020-06-01..2020-08-30\", type: ISSUE, first: 100)"`
+type issuesCreated struct {
+	User struct {
+		Issues struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				CreatedAt graphql.String
+				Closed    graphql.Boolean
+			}
+		} `graphql:"issues(first:60 orderBy:{direction:DESC field:CREATED_AT} filterBy:{since:"2020-06-01T00:00:00Z"})"`
+	} `graphql:"user(login: $username)"`
 }
 
 type accountInformation struct {
@@ -104,7 +93,7 @@ type accountInformation struct {
 		Location   graphql.String
 		Url        graphql.String
 		WebsiteUrl graphql.String
-	} `graphql:"user(login: \"IamCathal\")"`
+	} `graphql:"user(login: $username)"`
 }
 
 func writeJSON(jsonStruct MegaJSONStruct) {
@@ -115,29 +104,17 @@ func writeJSON(jsonStruct MegaJSONStruct) {
 	}
 	_ = ioutil.WriteFile("../data/repoContribTo.json", jsonData, 0644)
 
-	jsonData, err = json.Marshal(jsonStruct.PrMerged)
+	jsonData, err = json.Marshal(jsonStruct.Pr)
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = ioutil.WriteFile("../data/prMerged.json", jsonData, 0644)
+	_ = ioutil.WriteFile("../data/pr.json", jsonData, 0644)
 
-	jsonData, err = json.Marshal(jsonStruct.PrOpened)
+	jsonData, err = json.Marshal(jsonStruct.IssCreated)
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = ioutil.WriteFile("../data/prOpened.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.IssOpened)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/issuesOpened.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.IssClosed)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/issuesClosed.json", jsonData, 0644)
+	_ = ioutil.WriteFile("../data/issuesCreated.json", jsonData, 0644)
 
 	jsonData, err = json.Marshal(jsonStruct.PRContributions)
 	if err != nil {

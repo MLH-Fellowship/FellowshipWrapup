@@ -6,9 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/shurcooL/graphql"
@@ -19,9 +17,55 @@ type response struct {
 	Body   string `json:"body"`
 }
 
-func HomeHandler(w http.ResponseWriter, req *http.Request) {
-	startTime := time.Now().UnixNano() / int64(time.Millisecond)
+func VerificationMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
 
+		if auth, err := util.IsAuthorized(w, r); !auth {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			res := response{
+				Status: "401",
+				Body:   fmt.Sprint(err),
+			}
+			json.NewEncoder(w).Encode(res)
+
+			util.LogCall("POST", r.RequestURI, "401")
+			return
+		}
+
+		if vars["username"] == "" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			res := response{
+				Status: "error",
+				Body:   "No username given",
+			}
+			json.NewEncoder(w).Encode(res)
+
+			util.LogCall("POST", r.RequestURI, "400")
+			return
+		}
+
+		if !util.IsValidUsername(vars["username"]) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			res := response{
+				Status: "error",
+				Body:   "Invalid username given",
+			}
+			json.NewEncoder(w).Encode(res)
+
+			util.LogCall("POST", r.RequestURI, "400")
+			return
+		}
+
+		next.ServeHTTP(w, r)
+
+	})
+}
+
+func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	res := response{
 		Status: "success",
 		Body:   "Home page",
@@ -30,47 +74,18 @@ func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
-	util.LogCall("GET", "/", "200", startTime)
+	util.LogCall("GET", "/", "200")
+}
+
+func getFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
+
 }
 
 func FellowHandler(w http.ResponseWriter, req *http.Request) {
-	startTime := time.Now().UnixNano() / int64(time.Millisecond)
-	// vars here is the {username} field in the router
 	vars := mux.Vars(req)
-
-	// Check is requests has a valid key
-	if !util.IsAuthorized(w, req) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		res := response{
-			Status: "error",
-			Body:   "Incorrect secret given, you are not authorized to use this API",
-		}
-		json.NewEncoder(w).Encode(res)
-
-		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-		util.LogCall("POST", endPoint, "401", startTime)
-		return
-	}
-
-	// Check if github username exists
-	if !util.IsValidUsername(vars["username"]) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		res := response{
-			Status: "error",
-			Body:   "Invalid username given",
-		}
-		json.NewEncoder(w).Encode(res)
-
-		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-		util.LogCall("POST", endPoint, "400", startTime)
-		return
-	}
 
 	// If user wasn't already queried
 	if !util.CheckUser(vars["username"]) {
-		fmt.Fprintf(w, "User not found, quering") // TODO: enhance message
 
 		// Query user data
 		httpClient := util.SetupOAuth()
@@ -83,14 +98,12 @@ func FellowHandler(w http.ResponseWriter, req *http.Request) {
 		err := client.Query(context.Background(), &tempStruct.RepoContrib, nil)
 		util.CheckAPICallErr(err)
 
-		_, err = json.Marshal(tempStruct.RepoContrib)
-		if err != nil {
-			log.Fatal(err)
-		}
 		// TODO: save query data on user directory
-	}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(tempStruct.RepoContrib)
+		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
+		util.LogCall("POST", endPoint, "200")
 
-	endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-	util.LogCall("POST", endPoint, "200", startTime)
+	}
 
 }

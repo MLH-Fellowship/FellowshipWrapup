@@ -6,8 +6,8 @@ import { parseCookies } from "../utils/parseCookies";
 import Confetti from "react-confetti";
 
 // Components
-import Header from "../components/Landing/Header";
-import Example from "../components/Landing/Example";
+import Header from "../components/containers/Landing/Header";
+import Example from "../components/containers/Landing/Example";
 
 export default function Home({ cookies }) {
   const [isFirstVisit, setIsFirstVisit] = useState(
