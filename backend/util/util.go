@@ -109,18 +109,22 @@ func LogCall(method, endpoint, status string) {
 // a non 200 the profile doesnt exist and we dont call the API
 // Returns true if the user is found
 // Returns false otherwise
-func IsValidUsername(username string) bool {
+func IsValidUsername(username string) (bool, error) {
 	// Empty username will yield 200 on github
 	if username == "" {
-		return false
+		return false, errors.New("Empty username")
 	}
 	URL := fmt.Sprintf("https://github.com/%s", username)
 	res, err := http.Head(URL)
-
-	if res.StatusCode != 200 || err != nil {
-		return false
+	if err != nil {
+		return false, err
 	}
-	return true
+
+	if res.StatusCode != 200 {
+		return false, errors.New("Invalid username")
+	}
+
+	return true, nil
 }
 
 // IsAuthorized checks if a request contains the correct server key

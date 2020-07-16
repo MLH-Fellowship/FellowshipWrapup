@@ -34,25 +34,12 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if vars["username"] == "" {
+		if v, err := util.IsValidUsername(vars["username"]); !v {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			res := response{
-				Status: "error",
-				Body:   "No username given",
-			}
-			json.NewEncoder(w).Encode(res)
-
-			util.LogCall("POST", r.RequestURI, "400")
-			return
-		}
-
-		if !util.IsValidUsername(vars["username"]) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			res := response{
-				Status: "error",
-				Body:   "Invalid username given",
+				Status: "422",
+				Body:   fmt.Sprint(err),
 			}
 			json.NewEncoder(w).Encode(res)
 

@@ -57,7 +57,7 @@ type repositoriesContributedTo struct {
 				Name      graphql.String
 				Url       graphql.String
 			}
-		} `graphql:"reposContributedTo(first: 25, contributionTypes:[PULL_REQUEST])"`
+		} `graphql:"repositoriesContributedTo(first: 25, contributionTypes:[PULL_REQUEST])"`
 	} `graphql:"user(login:$username)"`
 }
 
