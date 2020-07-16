@@ -1,112 +1,13 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
+	"backend/server"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/shurcooL/graphql"
 )
-
-type response struct {
-	Status string `json:"status"`
-	Body   string `json:"body"`
-}
-
-func verificationMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-
-		if !isAuthorized(w, r) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			res := response{
-				Status: "error",
-				Body:   "Incorrect secret given, you are not authorized to use this API",
-			}
-			json.NewEncoder(w).Encode(res)
-
-			logCall("POST", r.RequestURI, "401")
-			return
-		}
-
-		if vars["username"] == "" {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			res := response{
-				Status: "error",
-				Body:   "No username given",
-			}
-			json.NewEncoder(w).Encode(res)
-
-			logCall("POST", r.RequestURI, "400")
-			return
-		}
-
-		if !isValidUsername(vars["username"]) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			res := response{
-				Status: "error",
-				Body:   "Invalid username given",
-			}
-			json.NewEncoder(w).Encode(res)
-
-			logCall("POST", r.RequestURI, "400")
-			return
-		}
-
-		next.ServeHTTP(w, r)
-
-	})
-}
-
-func homeHandler(w http.ResponseWriter, req *http.Request) {
-	res := response{
-		Status: "success",
-		Body:   "Home page",
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(res)
-	logCall("GET", "/", "200")
-}
-
-func getFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
-
-}
-
-func getFellowHandler(w http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-
-	// If user wasn't already queried
-	if !CheckUser(vars["username"]) {
-
-		// Query user data
-		httpClient := SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
-
-		var tempStruct megaJSONStruct
-
-		// Call the API with the relevant queries
-		// TODO: correctly get json data here
-		err := client.Query(context.Background(), &tempStruct.repoContrib, nil)
-		CheckAPICallErr(err)
-
-		// TODO: save query data on user directory
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tempStruct.repoContrib)
-		endPoint := fmt.Sprintf("/getfellow/%s", vars["username"])
-		logCall("POST", endPoint, "200")
-
-	}
-
-}
 
 func main() {
 
@@ -115,11 +16,9 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", homeHandler).Methods("GET")
-	r.HandleFunc("/getfellow/{username}", getFellowHandler).Methods("POST")
-	// r.HandleFunc("/getfellow/accountinfo/{username}", getFellowAccountInfo).Methods("POST")
-
-	r.Use(verificationMiddleware)
+	r.HandleFunc("/", server.HomeHandler).Methods("GET")
+	r.HandleFunc("/getfellow/{username}", server.FellowHandler).Methods("POST")
+	r.Use(server.VerificationMiddleware)
 
 	log.Println("Starting web server on localhost:8080")
 	http.ListenAndServe(":8080", r)
