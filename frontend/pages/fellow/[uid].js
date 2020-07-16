@@ -2,6 +2,7 @@ import Header from "../../components/containers/Fellow/Header";
 import ProjectDetails from "../../components/containers/Fellow/ProjectDetails";
 import Milestones from "../../components/containers/Fellow/Milestones";
 import Map from "../../components/containers/Fellow/Map";
+import ProgressLayout from "../../components/containers/Fellow/ProgressTracker/ProgressLayout";
 import Footer from "../../components/containers/Fellow/Footer/Footer";
 
 export default function Fellow() {
@@ -21,6 +22,7 @@ export default function Fellow() {
         <Map />
         <ProjectDetails />
         <Milestones />
+        <ProgressLayout />
         <Footer />
       </div>
     </>

@@ -41,37 +41,7 @@ export default function ProjectDetails() {
                                 <LogoTwitter></LogoTwitter>
                             </a></li>
                     </ul>
-                </div>
-            </div>
-        </div>
-        <div className="col-lg-6 wrap align-content-center">
-            <div className="row mt-5 flex-column">
-                <div className="col-md-8">
-                    <h2 className="mb-4">Most used languages in my projects</h2>
-                </div>
-                <div className="col-md-6 mt-4">
-                    <div className="progress-wrap">
-                        <h4>[projectLanguage1]</h4>
-                        <div className="progress progress-style">
-                            <div className="progress-bar progress-style-color" role="progressbar" aria-valuenow="75"
-                                aria-valuemin="0" aria-valuemax="100" style={{width:'66%'}}>
-                                <span>Used in 2/3rd projects</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-6 mt-4">
-                    <div className="progress-wrap">
-                        <h4>[projectLanguage2]</h4>
-                        <div className="progress progress-style">
-                            <div className="progress-bar progress-style-color" role="progressbar" aria-valuenow="60"
-                                aria-valuemin="0" aria-valuemax="100" style={{width:'33%'}}>
-                                <span>Used in 1/3rd projects</span>
-                                {/* We can remove the span or show percentage */}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                 </div>
             </div>
         </div>
     </div>
