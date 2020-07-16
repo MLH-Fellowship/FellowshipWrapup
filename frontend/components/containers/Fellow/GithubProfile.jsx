@@ -1,3 +1,4 @@
+import { getUserInfo } from "../../../utils/user-info";
 import styled from "styled-components";
 
 export default function GithubProfile({ info }) {
@@ -59,7 +60,8 @@ export const StyledLink = styled.a`
 
 export async function getServerSideProps() {
   // ! Getting a weid error when calling the below func, needs fixing
-  //const info = await getUserInfo();
+  const info = getUserInfo();
+  console.log(info);
 
   return {
     props: {
