@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700|Roboto:300,400,500,700,900&amp;display=swap");
 
+html {
+  scroll-behavior: smooth;
+}
+
 h1,
 h2,
 h3,
@@ -50,11 +54,11 @@ body {
   display: block;
   float: left;
   background: #f8b92a;
-  color: white;
   border-radius: 50%;
   position: relative;
+  transition: all 0.3s;
 }
-.social-links li a ion-icon {
+.social-links li a > * {
   position: absolute;
   font-size: 26px;
   top: 50%;
@@ -65,7 +69,7 @@ body {
   transition: all 0.3s;
 }
 .social-links li a:hover {
-  color: rgba(0, 0, 0, 0.05);
+  background: #ebebeb;
   transition: all 0.3s;
 }
 
@@ -107,6 +111,9 @@ body {
 }
 .progress-style {
   width: 400px;
+}
+.progress-style-color{
+  background-color:#2a876d !important;
 }
 @media (max-width: 412px) {
   .progress-style {

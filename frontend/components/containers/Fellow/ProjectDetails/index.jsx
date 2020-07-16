@@ -1,4 +1,9 @@
-// import {LogoTwitter, LogoGithub, LogoLinkedin, IosMailOutline} from "react-ionicons"; Error: Not found, I'm probably doing something really dumb
+import LogoTwitter from "react-ionicons/lib/LogoTwitter";
+import LogoGithub from "react-ionicons/lib/LogoGithub";
+import LogoLinkedin from "react-ionicons/lib/LogoLinkedin";
+import IosMailOutline from "react-ionicons/lib/IosMailOutline";
+
+
 
 export default function ProjectDetails() {
   return (
@@ -24,23 +29,22 @@ export default function ProjectDetails() {
                     </p>
                     <ul className="social-links list-unstyled mt-4">
                         <li><a href="#">
-                                {/* <IosMailOutline></IosMailOutline> */}
+                                <IosMailOutline></IosMailOutline>
                             </a></li>
                         <li><a href="#">
-                                {/* <LogoGithub></LogoGithub> */}
+                                <LogoGithub></LogoGithub>
                             </a></li>
                         <li><a href="#">
-                                {/* <LogoLinkedin></LogoLinkedin> */}
+                                <LogoLinkedin></LogoLinkedin>
                             </a></li>
                         <li><a href="#">
-                                {/* <LogoTwitter></LogoTwitter> */}
+                                <LogoTwitter></LogoTwitter>
                             </a></li>
                     </ul>
                 </div>
             </div>
         </div>
-        {/* Removed until we figure out what to stuff here */}
-        {/* <div className="col-lg-6 wrap align-content-center">
+        <div className="col-lg-6 wrap align-content-center">
             <div className="row mt-5 flex-column">
                 <div className="col-md-8">
                     <h2 className="mb-4">Most used languages in my projects</h2>
@@ -49,8 +53,8 @@ export default function ProjectDetails() {
                     <div className="progress-wrap">
                         <h4>[projectLanguage1]</h4>
                         <div className="progress progress-style">
-                            <div className="progress-bar color-1" role="progressbar" aria-valuenow="75"
-                                aria-valuemin="0" aria-valuemax="100" style={{width:0.66}}>
+                            <div className="progress-bar progress-style-color" role="progressbar" aria-valuenow="75"
+                                aria-valuemin="0" aria-valuemax="100" style={{width:'66%'}}>
                                 <span>Used in 2/3rd projects</span>
                             </div>
                         </div>
@@ -60,15 +64,16 @@ export default function ProjectDetails() {
                     <div className="progress-wrap">
                         <h4>[projectLanguage2]</h4>
                         <div className="progress progress-style">
-                            <div className="progress-bar color-1" role="progressbar" aria-valuenow="60"
-                                aria-valuemin="0" aria-valuemax="100" style={{width:0.33}}>
+                            <div className="progress-bar progress-style-color" role="progressbar" aria-valuenow="60"
+                                aria-valuemin="0" aria-valuemax="100" style={{width:'33%'}}>
                                 <span>Used in 1/3rd projects</span>
+                                {/* We can remove the span or show percentage */}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div> */}
+        </div>
     </div>
     </>
   );
