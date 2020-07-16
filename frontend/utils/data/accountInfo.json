@@ -1,11 +1,11 @@
 {
-    "User": {
-        "Name": "Cathal O'Callaghan",
-        "AvatarUrl": "https://avatars1.githubusercontent.com/u/6561327?u=3746478b26e66ebe22eba9ba20097b477c455cc3&v=4",
-        "Bio": "@MLH Fellowship Intern |\r\n2nd year Computer Science & IT NUIG \r\n| Golang - Python - Javascript\r\n",
-        "Company": "@MLH",
-        "Location": "",
-        "Url": "https://github.com/IamCathal",
-        "WebsiteUrl": "https://iamcathal.github.io/"
-    }
+  "User": {
+    "Name": "Cathal O'Callaghan",
+    "AvatarUrl": "https://avatars1.githubusercontent.com/u/6561327?u=3746478b26e66ebe22eba9ba20097b477c455cc3\u0026v=4",
+    "Bio": "@MLH Fellowship Intern |\r\n2nd year Computer Science \u0026 IT NUIG \r\n| Golang - Python - Javascript\r\n",
+    "Company": "@MLH",
+    "Location": "",
+    "Url": "https://github.com/IamCathal",
+    "WebsiteUrl": "https://iamcathal.github.io/"
+  }
 }

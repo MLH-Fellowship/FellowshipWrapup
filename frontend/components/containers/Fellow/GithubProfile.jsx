@@ -1,8 +1,7 @@
-import { getUserInfo } from "../../../utils/user-info";
 import styled from "styled-components";
 
-export default function GithubProfile({ info }) {
-  console.log(info);
+const GithubProfile = ({ accountInfo }) => {
+  const { Name, Location, Bio } = accountInfo;
 
   return (
     <StyledLink href="https://github.com/sebastiancrossa" target="_blank">
@@ -11,18 +10,20 @@ export default function GithubProfile({ info }) {
           <img src="/gh-logo.png" alt="Github logo" />
         </div>
         <div className="text-container">
-          <p className="head">Sebastian Crossa | Zapopan, Jalisco</p>
-          <p>Computer science student & maker - Full-stack JavaScript</p>
+          <p className="head">
+            {Name} {Location && `| ${Location}`}
+          </p>
+          <p>{Bio}</p>
         </div>
       </StyledBackground>
     </StyledLink>
   );
-}
+};
 
 export const StyledBackground = styled.div`
   display: flex;
   align-items: center;
-  text-align:left;
+  text-align: left;
 
   border: 1px solid gray;
   border-radius: 8px;
@@ -58,14 +59,4 @@ export const StyledLink = styled.a`
   }
 `;
 
-export async function getServerSideProps() {
-  // ! Getting a weid error when calling the below func, needs fixing
-  const info = getUserInfo();
-  console.log(info);
-
-  return {
-    props: {
-      info,
-    },
-  };
-}
+export default GithubProfile;

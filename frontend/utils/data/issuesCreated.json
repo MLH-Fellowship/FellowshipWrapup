@@ -1,0 +1,64 @@
+{
+  "User": {
+    "Issues": {
+      "TotalCount": 11,
+      "Nodes": [
+        {
+          "Url": "https://github.com/ReqApp/Req/issues/4",
+          "CreatedAt": "2020-03-14T18:27:25Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/ReqApp/Req/issues/7",
+          "CreatedAt": "2020-03-15T20:45:22Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/ReqApp/Req/issues/9",
+          "CreatedAt": "2020-03-22T18:23:47Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/ReqApp/Req/issues/10",
+          "CreatedAt": "2020-03-29T18:29:11Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/commaai/comma10k/issues/1084",
+          "CreatedAt": "2020-05-09T23:18:35Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/commaai/comma10k/issues/1126",
+          "CreatedAt": "2020-05-11T23:18:41Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/MLH-Fellowship/0.5.1-howDoIDiscord/issues/1",
+          "CreatedAt": "2020-06-02T15:34:42Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/MLH-Fellowship/0.5.1-howDoIDiscord/issues/2",
+          "CreatedAt": "2020-06-02T16:11:31Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/MLH-Fellowship/0.5.1-howDoIDiscord/issues/4",
+          "CreatedAt": "2020-06-02T16:41:20Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/MLH-Fellowship/0.5.1-howDoIDiscord/issues/14",
+          "CreatedAt": "2020-06-03T18:14:36Z",
+          "Closed": true
+        },
+        {
+          "Url": "https://github.com/MLH-Fellowship/FellowshipWrapup/issues/1",
+          "CreatedAt": "2020-07-13T15:16:35Z",
+          "Closed": true
+        }
+      ]
+    }
+  }
+}
