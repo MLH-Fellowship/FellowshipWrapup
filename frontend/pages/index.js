@@ -48,7 +48,6 @@ export default function Home({ cookies }) {
         )}
 
         <Header />
-        <Example />
       </main>
     </div>
   );

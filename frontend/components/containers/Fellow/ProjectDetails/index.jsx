@@ -18,7 +18,6 @@ function ProjectDetails({ accountInfo, contributions }) {
       <div className="row">
         <div className="col-lg-6 wrap text-left">
           <div className="about-desc">
-            <h1 className="bold-text">About</h1>
             <div className="pt-5">
               <h2 className="mb-5">
                 Hello, I'm {Name.split(" ")[0]}
@@ -29,7 +28,7 @@ function ProjectDetails({ accountInfo, contributions }) {
                   </>
                 )}
               </h2>
-              <p className="about-p mb-5">
+              <p className="about-p mb-5" style={{ zIndex: "999" }}>
                 As part of the inaugural class of MLH Fellows, where I
                 contributed to projects like:{" "}
                 {contributions.map((el, i) => (

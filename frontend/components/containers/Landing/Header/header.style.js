@@ -6,7 +6,7 @@ export const StyledHeader = styled.header`
   justify-content: center;
   align-items: center;
 
-  min-height: 50vh;
+  min-height: 90vh;
   max-width: 95%;
   margin: 2rem auto;
   padding: 2.5rem;

@@ -22,18 +22,13 @@ export default function ProgressTriangle({ issues, prs }) {
         <div className="progressTriangle">
           <div
             className="progressTriangle-bar"
-            style={{ width: `${(mergedPrs * 100) / totalPrs}%` }}
+            style={{
+              width: `${totalPrs === 0 ? 0 : (mergedPrs * 100) / totalPrs}%`,
+            }}
           >
             <div className="progressTriangle-value">
-              {((mergedPrs * 100) / totalPrs).toFixed(2)}%
+              {totalPrs === 0 ? 0 : ((mergedPrs * 100) / totalPrs).toFixed(2)}%
             </div>
-          </div>
-        </div>
-
-        <h3 className="progressTriangle-title">Merged/ Total Commits</h3>
-        <div className="progressTriangle yellow">
-          <div className="progressTriangle-bar" style={{ width: "87%" }}>
-            <div className="progressTriangle-value">87%</div>
           </div>
         </div>
 
@@ -44,10 +39,19 @@ export default function ProgressTriangle({ issues, prs }) {
         <div className="progressTriangle blue">
           <div
             className="progressTriangle-bar"
-            style={{ width: `${(solvedIssues * 100) / totalIssues}%` }}
+            style={{
+              width: `${
+                totalIssues === 0
+                  ? 0
+                  : ((solvedIssues * 100) / totalIssues).toFixed(2)
+              }%`,
+            }}
           >
             <div className="progressTriangle-value">
-              {((solvedIssues * 100) / totalIssues).toFixed(2)}%
+              {totalIssues === 0
+                ? 0
+                : ((solvedIssues * 100) / totalIssues).toFixed(2)}
+              %
             </div>
           </div>
         </div>

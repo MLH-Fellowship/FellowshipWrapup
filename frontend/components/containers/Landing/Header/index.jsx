@@ -20,16 +20,8 @@ const Header = () => {
           graduating fellows of Class 0
         </h1>
         <h2>
-          It's time to show off your hard work to the world. Generate your own
-          personal link by{" "}
-          <a
-            href="https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            generating a new personal access token
-          </a>{" "}
-          and pasting it below.
+          It's time to show off your hard work to the world. Enter your Github
+          username and start generating your own, personal Fellowship portfolio
         </h2>
 
         <div className="inputContainer">
