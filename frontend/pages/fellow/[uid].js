@@ -7,6 +7,7 @@ import ProjectDetails from "../../components/containers/Fellow/ProjectDetails";
 import Milestones from "../../components/containers/Fellow/Milestones";
 import Map from "../../components/containers/Fellow/Map";
 import ProgressLayout from "../../components/containers/Fellow/ProgressTracker/ProgressLayout";
+import FellowMap from "../../components/containers/Fellow/FellowMap/index";
 import Footer from "../../components/containers/Fellow/Footer/Footer";
 
 const Fellow = ({
@@ -20,7 +21,6 @@ const Fellow = ({
   if (!accountInfo) {
     return <h1>The account you are looking for doesn't seem to exist</h1>;
   }
-
   const filteredIssues = issueInfo.User.Issues.Nodes.filter((el) =>
     el.Url.startsWith("https://github.com/MLH-Fellowship/")
   );
@@ -68,6 +68,7 @@ const Fellow = ({
           prContributions={filteredPrContributions}
         />
         <ProgressLayout issues={filteredIssues} prs={filteredPrs} />
+        <FellowMap />
         <Footer />
       </div>
     </>

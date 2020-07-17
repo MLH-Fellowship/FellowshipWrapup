@@ -33,7 +33,7 @@ A summary showcase of all your time spent during the MLH Fellowship.
 
 - [Github API](https://docs.github.com/en/graphql)
 
-- JAM Stack (for static generated portfolios)
+- [MLH-Fellow-Map](https://github.com/Korusuke/MLH-Fellow-Map)
 
 ## Built originally by
 
@@ -49,7 +49,18 @@ Gabriel Cruz</b></sub></a></td>
 
 ## Installation
 
+#### Frontend
+
+To run the frontend locally, run the following commands in order
+(Assumed you have NPM or Yarn installed on your machine)
+
+`yarn` or `npm install`
+
+`yarn dev` or `npm run dev` 
+
+
 #### Backend
+
 * To run the backend you will need to export your [GitHub personal access](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) token and your secret to be used in ensuring that bots aren't pinging your server and using up your credits. To do so export them like so:
 
 `export GRAPHQL_TOKEN=[your github personal access token]`
