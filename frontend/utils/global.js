@@ -40,5 +40,7 @@ export default createGlobalStyle`
         --color-black: ${({ theme }) => theme.color.black};
         --color-main: ${({ theme }) => theme.color.main};
         --color-secondary: ${({ theme }) => theme.color.secondary};
+        --color-green: ${({ theme }) => theme.color.green};
+        --color-green-light: ${({ theme }) => theme.color.greenLight};
     }
 `;

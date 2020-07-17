@@ -1,62 +1,76 @@
 {
-  "Viewer": {
+  "User": {
     "PullRequests": {
       "TotalCount": 14,
       "Nodes": [
         {
           "Url": "https://github.com/Jared-Mullin/Infinite-Rainbow-Rain/pull/1",
+          "CreatedAt": "2020-05-04T15:41:58Z",
           "MergeCommit": { "Additions": 6, "Deletions": 6 }
         },
         {
           "Url": "https://github.com/Korusuke/MLH-Fellow-Map/pull/6",
+          "CreatedAt": "2020-06-01T15:07:08Z",
           "MergeCommit": { "Additions": 9, "Deletions": 0 }
         },
         {
           "Url": "https://github.com/IamCathal/github-slideshow/pull/3",
+          "CreatedAt": "2020-06-01T16:58:05Z",
           "MergeCommit": { "Additions": 6, "Deletions": 0 }
         },
         {
           "Url": "https://github.com/IamCathal/reviewing-a-pull-request/pull/4",
+          "CreatedAt": "2020-06-01T17:30:16Z",
           "MergeCommit": { "Additions": 2, "Deletions": 2 }
         },
         {
           "Url": "https://github.com/MLH-Fellowship/0.5.1-howDoIDiscord/pull/3",
+          "CreatedAt": "2020-06-02T16:14:26Z",
           "MergeCommit": { "Additions": 104, "Deletions": 17 }
         },
         {
           "Url": "https://github.com/MLH-Fellowship/0.5.1-howDoIDiscord/pull/13",
+          "CreatedAt": "2020-06-03T17:56:50Z",
           "MergeCommit": { "Additions": 42, "Deletions": 29 }
         },
         {
           "Url": "https://github.com/MLH-Fellowship/0.5.1-howDoIDiscord/pull/21",
+          "CreatedAt": "2020-06-04T15:20:31Z",
           "MergeCommit": { "Additions": 146, "Deletions": 88 }
         },
         {
           "Url": "https://github.com/IamCathal/mlh-localhost-gitkraken-code/pull/1",
+          "CreatedAt": "2020-06-10T22:10:16Z",
           "MergeCommit": { "Additions": 11, "Deletions": 2 }
         },
         {
           "Url": "https://github.com/pallets/click/pull/1586",
+          "CreatedAt": "2020-06-15T15:36:01Z",
           "MergeCommit": { "Additions": 16, "Deletions": 0 }
         },
         {
           "Url": "https://github.com/poychang/github-dark-theme/pull/216",
+          "CreatedAt": "2020-06-21T22:31:48Z",
           "MergeCommit": { "Additions": 4, "Deletions": 0 }
         },
         {
           "Url": "https://github.com/MLH-Fellowship/howdoi/pull/49",
+          "CreatedAt": "2020-06-30T14:27:16Z",
           "MergeCommit": { "Additions": 367, "Deletions": 0 }
         },
         {
           "Url": "https://github.com/poychang/github-dark-theme/pull/225",
+          "CreatedAt": "2020-07-12T00:06:44Z",
           "MergeCommit": { "Additions": 5, "Deletions": 0 }
         },
         {
           "Url": "https://github.com/MLH-Fellowship/FellowshipWrapup/pull/3",
+          "CreatedAt": "2020-07-13T20:37:17Z",
           "MergeCommit": { "Additions": 40, "Deletions": 2 }
         },
         {
           "Url": "https://github.com/MLH-Fellowship/FellowshipWrapup/pull/14",
+          "CreatedAt": "2020-07-14T21:06:27Z",
           "MergeCommit": { "Additions": 188, "Deletions": 27 }
         }
       ]

@@ -1,10 +1,19 @@
-// import * as fs from "fs";
-// import path from "path";
+const accountInfo = require("./data/accountInfo.json");
 
-// const infoDir = path.join("./data");
+export const getUserInfo = () => {
+  const stringify = JSON.stringify(accountInfo);
 
-// // TODO: change it so it gets the actual user data from the server
-// export function getUserInfo() {
-//   // Return the accountInfo.json file
-//   return fs.readFileSync(infoDir, "accountInfo.json");
-//}
+  return JSON.parse(stringify);
+};
+
+// export const testUserInfo = async () => {
+//   const res = await axios({
+//     method: "post",
+//     url: `${process.env.BACKEND_URL}/accountinfo/sebastiancrossa`,
+//     data: {
+//       secret: process.env.BACKEND_SECRET,
+//     },
+//   }).then((res) => {
+//     return res.data;
+//   });
+// };
