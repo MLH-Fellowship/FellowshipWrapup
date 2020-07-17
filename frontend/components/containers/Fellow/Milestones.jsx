@@ -1,8 +1,14 @@
 import fetch from "isomorphic-fetch";
 import Countup from "react-countup";
 
-function Milestones({ issues }) {
+function Milestones({ issues, commits, prContributions }) {
   const nIssues = Object.keys(issues).length;
+  const nCommits = commits.reduce((accum, el) => {
+    return (accum += el.Commit.TotalCount);
+  }, 0);
+  const nAdditions = prContributions.reduce((accum, el) => {
+    return (accum += el.MergeCommit.Additions);
+  }, 0);
 
   return (
     <section className="stats-section stats-counter mt-5">
@@ -15,7 +21,7 @@ function Milestones({ issues }) {
           <div className="text">
             <span className="stats-label">lines of code</span>
             <strong className="number" id="countLOC">
-              <Countup end={134} duration={5} />K
+              <Countup end={nAdditions} duration={5} />
             </strong>
           </div>
         </div>
@@ -25,7 +31,7 @@ function Milestones({ issues }) {
           <div className="text">
             <span className="stats-label">commits made</span>
             <strong className="number" id="countCommits">
-              <Countup end={143} duration={5} />
+              <Countup end={nCommits} duration={5} />
             </strong>
           </div>
         </div>

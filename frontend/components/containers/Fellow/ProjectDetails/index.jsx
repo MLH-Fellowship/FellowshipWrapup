@@ -5,8 +5,12 @@ import LogoGithub from "react-ionicons/lib/LogoGithub";
 import LogoLinkedin from "react-ionicons/lib/LogoLinkedin";
 import IosMailOutline from "react-ionicons/lib/IosMailOutline";
 
-function ProjectDetails({ accountInfo }) {
+function ProjectDetails({ accountInfo, contributions }) {
   const { Name, Location, Url, TwitterUsername } = accountInfo;
+  const uniqueLangs = new Set();
+
+  // Adding each individual language to our set so we can have unique values
+  contributions.map((el) => uniqueLangs.add(el.PrimaryLanguage.Name));
 
   return (
     <>
@@ -26,9 +30,33 @@ function ProjectDetails({ accountInfo }) {
                 )}
               </h2>
               <p className="about-p mb-5">
-                As part of the inaugural class of MLH Fellows, I contributed to
-                the [projectLanguage] ecosystem with a team of Fellows under the
-                educational mentorship of professional software engineers.
+                As part of the inaugural class of MLH Fellows, where I
+                contributed to projects like:{" "}
+                {contributions.map((el, i) => (
+                  <span>
+                    <a
+                      href={`${el.Url}`}
+                      style={{ textDecoration: "underline", fontWeight: "700" }}
+                    >
+                      {el.Name}
+                    </a>
+                    {i < contributions.length - 1 ? ", " : ""}
+                  </span>
+                ))}
+                , and used languages like:{" "}
+                {[...uniqueLangs].map((el, i) => (
+                  <>
+                    <span
+                      style={{
+                        color: "var(--color-green-light)",
+                        fontWeight: "700",
+                      }}
+                    >
+                      {el}
+                    </span>{" "}
+                    {i < [...uniqueLangs].length - 1 ? ", " : ""}
+                  </>
+                ))}
               </p>
               <ul className="social-links list-unstyled mt-4">
                 {Url && (
@@ -49,17 +77,6 @@ function ProjectDetails({ accountInfo }) {
                     </a>
                   </li>
                 )}
-
-                <li>
-                  <a href="#">
-                    <IosMailOutline></IosMailOutline>
-                  </a>
-                </li>
-                <li>
-                  <a href="#">
-                    <LogoLinkedin></LogoLinkedin>
-                  </a>
-                </li>
               </ul>
             </div>
           </div>
