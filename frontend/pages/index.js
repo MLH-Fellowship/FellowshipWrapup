@@ -1,6 +1,7 @@
 // Libraries
 import { useState, useEffect } from "react";
 import Head from "next/head";
+import Router from "next/router";
 import Cookie from "js-cookie";
 import { parseCookies } from "../utils/parseCookies";
 import Confetti from "react-confetti";
@@ -13,6 +14,7 @@ export default function Home({ cookies }) {
   const [isFirstVisit, setIsFirstVisit] = useState(
     cookies.firstVisit ? cookies.firstVisit : true
   );
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     if (cookies.firstVisit === undefined) {

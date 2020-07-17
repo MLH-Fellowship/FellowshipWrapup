@@ -14,6 +14,7 @@ const Fellow = ({
   contributedTo,
   commits,
   prContributions,
+  prs,
 }) => {
   const filteredIssues = issueInfo.User.Issues.Nodes.filter((el) =>
     el.Url.startsWith("https://github.com/MLH-Fellowship/")
@@ -31,7 +32,9 @@ const Fellow = ({
     (el) => el.Url.startsWith("https://github.com/MLH-Fellowship/")
   );
 
-  console.log(filteredIssues);
+  const filteredPrs = prs.User.PullRequests.Nodes.filter((el) =>
+    el.Url.startsWith("https://github.com/MLH-Fellowship/")
+  );
 
   return (
     <>
@@ -59,7 +62,7 @@ const Fellow = ({
           commits={filteredCommits}
           prContributions={filteredPrContributions}
         />
-        <ProgressLayout issues={filteredIssues} />
+        <ProgressLayout issues={filteredIssues} prs={filteredPrs} />
         <Footer />
       </div>
     </>
@@ -73,6 +76,7 @@ Fellow.getInitialProps = async ({ query }) => {
     contributedTo,
     commits,
     prContributions,
+    prs,
   ] = await Promise.all([
     fetch(`${process.env.BACKEND_URL}/accountinfo/${query.uid}`, {
       method: "POST",
@@ -104,6 +108,12 @@ Fellow.getInitialProps = async ({ query }) => {
         secret: `${process.env.BACKEND_SECRET}`,
       }),
     }).then((res) => res.json()),
+    fetch(`${process.env.BACKEND_URL}/pullrequests/${query.uid}`, {
+      method: "POST",
+      body: JSON.stringify({
+        secret: `${process.env.BACKEND_SECRET}`,
+      }),
+    }).then((res) => res.json()),
   ]);
 
   return {
@@ -112,6 +122,7 @@ Fellow.getInitialProps = async ({ query }) => {
     contributedTo,
     commits,
     prContributions,
+    prs,
   };
 };
 

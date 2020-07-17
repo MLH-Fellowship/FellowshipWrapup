@@ -1,8 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import Router from "next/router";
 import { StyledHeader } from "./header.style";
 
 const Header = () => {
+  const [username, setUsername] = useState("");
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    setUsername(value);
+  };
+
   return (
     <StyledHeader>
       <div className="textContainer">
@@ -25,8 +33,13 @@ const Header = () => {
         </h2>
 
         <div className="inputContainer">
-          <input type="text" />
-          <button>GO</button>
+          <input
+            type="text"
+            onChange={(e) => handleInputChange(e)}
+            value={username}
+            placeholder="Username..."
+          />
+          <button onClick={() => Router.push(`/fellow/${username}`)}>GO</button>
         </div>
       </div>
     </StyledHeader>

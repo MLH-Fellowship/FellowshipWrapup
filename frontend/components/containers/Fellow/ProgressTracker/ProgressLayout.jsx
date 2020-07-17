@@ -1,7 +1,7 @@
 import ProgressTriangle from "./ProgressTriangle";
 import ProgressRound from "./ProgressRound";
 
-export default function ProgressLayout({ issues }) {
+export default function ProgressLayout({ issues, prs }) {
   return (
     <div className="container" style={{ marginBottom: "11.5rem" }}>
       <div className="row">
@@ -11,7 +11,7 @@ export default function ProgressLayout({ issues }) {
         <h1 className="bg-text mb-2 pl-2">Progress Made</h1>
 
         <ProgressRound />
-        <ProgressTriangle issues={issues} />
+        <ProgressTriangle issues={issues} prs={prs} />
       </div>
     </div>
   );
