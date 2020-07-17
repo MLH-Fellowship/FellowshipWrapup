@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { getUserInfo } from "../../utils/user-info";
+import fetch from "isomorphic-fetch";
 
 import Header from "../../components/containers/Fellow/Header";
 import ProjectDetails from "../../components/containers/Fellow/ProjectDetails";
@@ -8,7 +8,14 @@ import Map from "../../components/containers/Fellow/Map";
 import ProgressLayout from "../../components/containers/Fellow/ProgressTracker/ProgressLayout";
 import Footer from "../../components/containers/Fellow/Footer/Footer";
 
-const Fellow = ({ accountInfo }) => {
+const Fellow = ({ accountInfo, issueInfo, contributedTo }) => {
+  // console.log(accountInfo.User);
+  // console.log(issueInfo.User.Issues.Nodes);
+
+  const filteredIssues = issueInfo.User.Issues.Nodes.filter((el) =>
+    el.Url.startsWith("https://github.com/MLH-Fellowship/")
+  );
+
   return (
     <>
       <Head>
@@ -26,8 +33,11 @@ const Fellow = ({ accountInfo }) => {
       <div className="container">
         <Header accountInfo={accountInfo} />
         <Map />
-        <ProjectDetails />
-        <Milestones />
+        <ProjectDetails
+          accountInfo={accountInfo.User}
+          contributions={contributedTo.User.PullRequests.Nodes}
+        />
+        <Milestones issues={filteredIssues} />
         <ProgressLayout />
         <Footer />
       </div>
@@ -35,11 +45,33 @@ const Fellow = ({ accountInfo }) => {
   );
 };
 
-Fellow.getInitialProps = async () => {
-  const info = getUserInfo();
+Fellow.getInitialProps = async ({ query }) => {
+  const [resAcc, resIss, contributedTo] = await Promise.all([
+    fetch(`${process.env.BACKEND_URL}/accountinfo/${query.uid}`, {
+      method: "POST",
+      body: JSON.stringify({
+        secret: `${process.env.BACKEND_SECRET}`,
+      }),
+    }).then((res) => res.json()),
+    fetch(`${process.env.BACKEND_URL}/issuescreated/${query.uid}`, {
+      method: "POST",
+      body: JSON.stringify({
+        secret: `${process.env.BACKEND_SECRET}`,
+      }),
+    }).then((res) => res.json()),
+    fetch(`${process.env.BACKEND_URL}/repocontributedto/${query.uid}`, {
+      method: "POST",
+      body: JSON.stringify({
+        secret: `${process.env.BACKEND_SECRET}`,
+      }),
+    }).then((res) => res.json()),
+  ]);
 
   return {
-    accountInfo: info,
+    accountInfo: resAcc,
+    issueInfo: resIss,
+    contributedTo,
+    query,
   };
 };
 

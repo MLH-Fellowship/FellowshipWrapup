@@ -5,8 +5,9 @@ export default function Map() {
     <StyledBackground>
       <div className="text-container">
         <h1>
-          With over 140+ students from over 23 regions and 15 different
-          timezones, I was able to network and reach out to fellows from all around the world!
+          With over <span>140+ students</span> from over <span>23 regions</span>{" "}
+          and <span>15 different timezones</span>, I was able to network and
+          reach out to fellows from all around the world!
         </h1>
       </div>
 
@@ -28,7 +29,12 @@ const StyledBackground = styled.div`
     font-size: 2rem;
     margin-bottom: 1.5rem;
   }
-  
+
+  span {
+    color: var(--color-green-light);
+    font-weight: 600;
+  }
+
   @media (max-width: 412px) {
     h1 {
       font-size: 1.2rem;

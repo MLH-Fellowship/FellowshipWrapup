@@ -1,8 +1,19 @@
 const accountInfo = require("./data/accountInfo.json");
 
-// TODO: change it so it gets the actual user data from the server
-export function getUserInfo() {
+export const getUserInfo = () => {
   const stringify = JSON.stringify(accountInfo);
 
   return JSON.parse(stringify);
-}
+};
+
+// export const testUserInfo = async () => {
+//   const res = await axios({
+//     method: "post",
+//     url: `${process.env.BACKEND_URL}/accountinfo/sebastiancrossa`,
+//     data: {
+//       secret: process.env.BACKEND_SECRET,
+//     },
+//   }).then((res) => {
+//     return res.data;
+//   });
+// };

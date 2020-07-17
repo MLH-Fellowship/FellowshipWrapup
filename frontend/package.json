@@ -8,10 +8,12 @@
     "start": "next build && next start"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "bootstrap": "^4.5.0",
     "confetti-js": "0.0.18",
     "cookie": "^0.4.1",
     "fs": "0.0.1-security",
+    "isomorphic-fetch": "^2.2.1",
     "js-cookie": "^2.2.1",
     "next": "9.4.4",
     "react": "16.13.1",

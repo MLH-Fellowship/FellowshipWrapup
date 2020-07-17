@@ -1,36 +1,10 @@
+import fetch from "isomorphic-fetch";
 import Countup from "react-countup";
 
-export default function Milestones() {
-  return (
-    // Keeping the old code in until designs are finalized
-    // <StyledBackground>
-    //   <div className="text-container">
-    //     <h1>Some of the milestones I hit during the fellowship</h1>
-    //   </div>
+function Milestones({ issues }) {
+  const nIssues = Object.keys(issues).length;
 
-    //   <div className="list">
-    //     <div className="list-item">
-    //       <span>
-    //         <Countup end={30} duration={2} />
-    //       </span>{" "}
-    //       <br />
-    //       lines of code
-    //     </div>
-    //     <div className="list-item">
-    //       <span>
-    //         <Countup end={30} duration={3} />
-    //       </span>{" "}
-    //       <br /> commits made
-    //     </div>
-    //     <div className="list-item">
-    //       <span>
-    //         <Countup end={30} duration={4} />
-    //       </span>{" "}
-    //       <br />
-    //       issues participated
-    //     </div>
-    //   </div>
-    // </StyledBackground>
+  return (
     <section className="stats-section stats-counter mt-5">
       <div className="text-left stats-animate">
         <h1 className="display-1 section-heading">Milestones Hit</h1>
@@ -61,7 +35,7 @@ export default function Milestones() {
           <div className="text">
             <span className="stats-label">issues opened</span>
             <strong className="number" id="countIssues">
-              <Countup end={37} duration={5} />
+              <Countup end={nIssues} duration={5} />
             </strong>
           </div>
         </div>
@@ -69,3 +43,21 @@ export default function Milestones() {
     </section>
   );
 }
+
+Milestones.getInitialProps = async ({ query }) => {
+  const res = await fetch(
+    `${process.env.BACKEND_URL}/issuescreated/${query.uid}`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        secret: `${process.env.BACKEND_SECRET}`,
+      }),
+    }
+  ).then((res) => res.json());
+
+  return {
+    info: res,
+  };
+};
+
+export default Milestones;
