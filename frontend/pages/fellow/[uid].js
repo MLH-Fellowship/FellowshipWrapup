@@ -88,49 +88,37 @@ Fellow.getInitialProps = async ({ query }) => {
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    })
-      .then((res) => res.json())
-      .catch((err) => Router.push("/404")),
+    }).then((res) => res.json()),
     fetch(`${process.env.BACKEND_URL}/issuescreated/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    })
-      .then((res) => res.json())
-      .catch((err) => Router.push("/404")),
+    }).then((res) => res.json()),
     fetch(`${process.env.BACKEND_URL}/repocontributedto/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    })
-      .then((res) => res.json())
-      .catch((err) => Router.push("/404")),
+    }).then((res) => res.json()),
     fetch(`${process.env.BACKEND_URL}/pullrequestcommits/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    })
-      .then((res) => res.json())
-      .catch((err) => Router.push("/404")),
+    }).then((res) => res.json()),
     fetch(`${process.env.BACKEND_URL}/prcontributions/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    })
-      .then((res) => res.json())
-      .catch((err) => Router.push("/404")),
+    }).then((res) => res.json()),
     fetch(`${process.env.BACKEND_URL}/pullrequests/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    })
-      .then((res) => res.json())
-      .catch((err) => Router.push("/404")),
+    }).then((res) => res.json()),
   ]);
 
   return {
