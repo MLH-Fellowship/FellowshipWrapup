@@ -47,3 +47,13 @@ Gabriel Cruz</b></sub></a></td>
   </tr>
 </table>
 
+## Installation
+
+#### Backend
+* To run the backend you will need to export your [GitHub personal access](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) token and your secret to be used in ensuring that bots aren't pinging your server and using up your credits. To do so export them like so:
+
+`export GRAPHQL_TOKEN=[your github personal access token]`
+
+`export secretKey=[your secret key]`
+
+Then run the server with `cd backend/ && go run main.go`
