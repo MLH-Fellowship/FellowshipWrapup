@@ -84,12 +84,13 @@ type issuesCreated struct {
 
 type accountInformation struct {
 	User struct {
-		Name       graphql.String
-		AvatarUrl  graphql.String
-		Bio        graphql.String
-		Company    graphql.String
-		Location   graphql.String
-		Url        graphql.String
-		WebsiteUrl graphql.String
+		Name            graphql.String
+		AvatarUrl       graphql.String
+		Bio             graphql.String
+		Company         graphql.String
+		Location        graphql.String
+		Url             graphql.String
+		WebsiteUrl      graphql.String
+		TwitterUsername graphql.String
 	} `graphql:"user(login: $username)"`
 }
