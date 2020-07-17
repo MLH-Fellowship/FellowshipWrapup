@@ -49,9 +49,17 @@ type repositoriesContributedTo struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
-				CreatedAt graphql.String
-				Name      graphql.String
-				Url       graphql.String
+				CreatedAt       graphql.String
+				Name            graphql.String
+				Url             graphql.String
+				PrimaryLanguage struct {
+					Name graphql.String
+				}
+				Languages struct {
+					Nodes []struct {
+						Name graphql.String
+					}
+				} `graphql:"languages(first: 5)"`
 			}
 		} `graphql:"repositoriesContributedTo(first: 25, contributionTypes:[PULL_REQUEST])"`
 	} `graphql:"user(login:$username)"`
