@@ -125,7 +125,7 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(string(content))
+	fmt.Fprintf(w, string(content))
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -182,7 +182,7 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(string(content))
+	fmt.Fprintf(w, string(content))
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -241,7 +241,7 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(string(content))
+	fmt.Fprintf(w, string(content))
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -299,7 +299,7 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(string(content))
+	fmt.Fprintf(w, string(content))
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -357,7 +357,7 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(string(content))
+	fmt.Fprintf(w, string(content))
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -367,6 +367,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "accountInfo.json") {
+		fmt.Println("Calling API")
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
@@ -382,7 +383,8 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 
 		// Write to JSON file
 		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
+		err = os.Mkdir(dirLocation, 0755)
+		fmt.Println(err)
 
 		fileLocation := fmt.Sprintf("../data/%s/accountInfo.json", vars["username"])
 		jsonData, err := json.Marshal(tempStruct.AccountInfo)
@@ -390,13 +392,16 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 			log.Fatal(err)
 		}
 
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
+		err = ioutil.WriteFile(fileLocation, jsonData, 0777)
+		fmt.Println(err)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.AccountInfo)
 		util.LogCall(req.Method, req.RequestURI, "200")
 		return
 	}
+
+	fmt.Println("Calling cache")
 	// Serve from cache instead
 	fileLocation := fmt.Sprintf("../data/%s/accountInfo.json", vars["username"])
 	content, err := ioutil.ReadFile(fileLocation)
@@ -414,7 +419,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(string(content))
+	fmt.Fprintf(w, string(content))
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
