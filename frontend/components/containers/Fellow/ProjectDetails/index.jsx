@@ -13,7 +13,7 @@ function ProjectDetails({ accountInfo, contributions }) {
   contributions.map((el) => uniqueLangs.add(el.PrimaryLanguage.Name));
 
   return (
-    <>
+    <div style={{ marginBottom: "11.5rem" }}>
       <h4 className="display-4">A little about me</h4>
       <div className="row">
         <div className="col-lg-6 wrap text-left">
@@ -82,7 +82,7 @@ function ProjectDetails({ accountInfo, contributions }) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

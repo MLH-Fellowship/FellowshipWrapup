@@ -11,7 +11,10 @@ function Milestones({ issues, commits, prContributions }) {
   }, 0);
 
   return (
-    <section className="stats-section stats-counter mt-5">
+    <section
+      className="stats-section stats-counter mt-5"
+      style={{ marginBottom: "8rem" }}
+    >
       <div className="text-left stats-animate">
         <h1 className="display-1 section-heading">Milestones Hit</h1>
         <h1 className="bold-text bg-text">Achievements This Summer</h1>

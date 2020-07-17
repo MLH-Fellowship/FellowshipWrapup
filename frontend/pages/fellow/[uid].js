@@ -31,7 +31,7 @@ const Fellow = ({
     (el) => el.Url.startsWith("https://github.com/MLH-Fellowship/")
   );
 
-  console.log(filteredPrContributions);
+  console.log(filteredIssues);
 
   return (
     <>
@@ -59,7 +59,7 @@ const Fellow = ({
           commits={filteredCommits}
           prContributions={filteredPrContributions}
         />
-        <ProgressLayout />
+        <ProgressLayout issues={filteredIssues} />
         <Footer />
       </div>
     </>

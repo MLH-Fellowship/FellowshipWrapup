@@ -21,7 +21,7 @@ export default function Map() {
 const StyledBackground = styled.div`
   padding: 1.5rem;
   text-align: center;
-  margin-bottom: 5.5rem;
+  margin-bottom: 13rem;
   background-color: #f5f5f9;
   border-radius: 8px;
 
