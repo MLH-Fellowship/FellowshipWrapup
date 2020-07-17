@@ -67,7 +67,13 @@ const Fellow = ({
           commits={filteredCommits}
           prContributions={filteredPrContributions}
         />
-        <ProgressLayout issues={filteredIssues} prs={filteredPrs} />
+        <ProgressLayout
+          issues={filteredIssues}
+          prs={filteredPrs}
+          countIss={issueInfo.User.Issues.TotalCount}
+          countPr={commits.User.PullRequests.TotalCount}
+          contributions={filteredContributions}
+        />
         <Footer />
       </div>
     </>

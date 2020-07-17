@@ -39,10 +39,19 @@ export default function ProgressTriangle({ issues, prs }) {
         <div className="progressTriangle blue">
           <div
             className="progressTriangle-bar"
-            style={{ width: `${(solvedIssues * 100) / totalIssues}%` }}
+            style={{
+              width: `${
+                totalIssues === 0
+                  ? 0
+                  : ((solvedIssues * 100) / totalIssues).toFixed(2)
+              }%`,
+            }}
           >
             <div className="progressTriangle-value">
-              {((solvedIssues * 100) / totalIssues).toFixed(2)}%
+              {totalIssues === 0
+                ? 0
+                : ((solvedIssues * 100) / totalIssues).toFixed(2)}
+              %
             </div>
           </div>
         </div>
