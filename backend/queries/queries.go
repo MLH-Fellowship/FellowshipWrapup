@@ -1,10 +1,6 @@
 package queries
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"log"
-
 	"github.com/shurcooL/graphql"
 )
 
@@ -42,9 +38,9 @@ type commitsOnPRs struct {
 				CreatedAt graphql.String
 				Commit    struct {
 					TotalCount graphql.Int
-				}
+				} `graphql:"commits(first: 1)"`
 			}
-		} `graphql:"pullRequests(first: 50, states:MERGED)"`
+		} `graphql:"pullRequests(first: 30, states:MERGED)"`
 	} `graphql:"user(login:$username)"`
 }
 
@@ -53,9 +49,17 @@ type repositoriesContributedTo struct {
 		PullRequests struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
-				CreatedAt graphql.String
-				Name      graphql.String
-				Url       graphql.String
+				CreatedAt       graphql.String
+				Name            graphql.String
+				Url             graphql.String
+				PrimaryLanguage struct {
+					Name graphql.String
+				}
+				Languages struct {
+					Nodes []struct {
+						Name graphql.String
+					}
+				} `graphql:"languages(first: 5)"`
 			}
 		} `graphql:"repositoriesContributedTo(first: 25, contributionTypes:[PULL_REQUEST])"`
 	} `graphql:"user(login:$username)"`
@@ -67,8 +71,9 @@ type pullRequests struct {
 			Nodes []struct {
 				CreatedAt graphql.String
 				Merged    graphql.Boolean
+				Url       graphql.String
 			}
-		} `graphql:"pullRequests(first:60 orderBy:{direction:DESC field:CREATED_AT})"`
+		} `graphql:"pullRequests(first:30)"`
 	} `graphql:"user(login: $username)"`
 }
 
@@ -77,61 +82,23 @@ type issuesCreated struct {
 		Issues struct {
 			TotalCount graphql.Int
 			Nodes      []struct {
+				Url       graphql.String
 				CreatedAt graphql.String
 				Closed    graphql.Boolean
 			}
-		} `graphql:"issues(first:60 orderBy:{direction:DESC field:CREATED_AT} filterBy:{since:"2020-06-01T00:00:00Z"})"`
+		} `graphql:"issues(first:20)"`
 	} `graphql:"user(login: $username)"`
 }
 
 type accountInformation struct {
 	User struct {
-		Name       graphql.String
-		AvatarUrl  graphql.String
-		Bio        graphql.String
-		Company    graphql.String
-		Location   graphql.String
-		Url        graphql.String
-		WebsiteUrl graphql.String
+		Name            graphql.String
+		AvatarUrl       graphql.String
+		Bio             graphql.String
+		Company         graphql.String
+		Location        graphql.String
+		Url             graphql.String
+		WebsiteUrl      graphql.String
+		TwitterUsername graphql.String
 	} `graphql:"user(login: $username)"`
-}
-
-func writeJSON(jsonStruct MegaJSONStruct) {
-
-	jsonData, err := json.Marshal(jsonStruct.RepoContrib)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/repoContribTo.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.Pr)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/pr.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.IssCreated)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/issuesCreated.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.PRContributions)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/PRContributions.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.PRCommits)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/PRCommits.json", jsonData, 0644)
-
-	jsonData, err = json.Marshal(jsonStruct.AccountInfo)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_ = ioutil.WriteFile("../data/accountInfo.json", jsonData, 0644)
-
 }

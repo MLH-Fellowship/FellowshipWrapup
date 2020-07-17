@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/shurcooL/graphql"
 	"golang.org/x/oauth2"
 )
 
@@ -28,6 +29,7 @@ func CheckAPICallErr(err error) {
 		log.Fatal("Error: You have not set your GRAPHQL_TOKEN environment variable. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to generate a token")
 	}
 
+	// fmt.Println("printing err")
 	log.Fatal(err)
 }
 
@@ -62,22 +64,23 @@ func dirEmpty(path string) bool {
 // Returns true if username is found on the /data dir
 // Returns false if username is not found
 // Returns false if username is found but is empty
-func CheckUser(username string) bool {
+func CheckUser(username, fileName string) bool {
 	var userPath strings.Builder
 	// Build path string
-	userPath.WriteString("data/")
+	userPath.WriteString("../data/")
 	userPath.WriteString(username)
+	userPath.WriteString("/" + fileName)
 
-	// Check if directory /data/{username} exists
+	// Check if directory /data/{username}/{fileName} exists
 	if !fileExists(userPath.String()) {
 		return false
 	}
 
-	// Check if directory /data/{username} is empty
-	if dirEmpty(userPath.String()) {
-		os.Remove(userPath.String()) // Delete empty dir
-		return false
-	}
+	// // Check if directory /data/{username} is empty
+	// if dirEmpty(userPath.String()) {
+	// 	os.Remove(userPath.String()) // Delete empty dir
+	// 	return false
+	// }
 
 	return true
 }
@@ -114,14 +117,26 @@ func IsValidUsername(username string) (bool, error) {
 	if username == "" {
 		return false, errors.New("Empty username")
 	}
-	URL := fmt.Sprintf("https://github.com/%s", username)
-	res, err := http.Head(URL)
-	if err != nil {
-		return false, err
+
+	// Check if username exists in github database
+	httpClient := SetupOAuth()
+	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+	var tempStruct struct {
+		User struct {
+			Login graphql.String
+		} `graphql:"user(login: $username)"`
 	}
 
-	if res.StatusCode != 200 {
-		return false, errors.New("Invalid username")
+	variables := map[string]interface{}{
+		"username": graphql.String(username),
+	}
+
+	// Call the API
+	err := client.Query(context.Background(), &tempStruct, variables)
+	CheckAPICallErr(err)
+
+	if err != nil {
+		return false, err
 	}
 
 	return true, nil

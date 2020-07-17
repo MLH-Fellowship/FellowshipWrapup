@@ -32,6 +32,13 @@ body {
   position: relative;
 }
 
+iframe{
+  border: none;
+  border-radius: 8px;
+  height: 30rem;
+  width: 100%;
+}
+
 .headerImg{
   height: 22rem;
   border-radius: 8px;
