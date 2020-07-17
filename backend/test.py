@@ -11,7 +11,7 @@ if len(sys.argv) > 2:
     port = sys.argv[2]
 
 secret="1234"
-username="gmelodie"
+username="asdf"
 endpoints = ["accountinfo", "issuescreated", "pullrequests", "repocontributedto",
              "pullrequestcommits", "prcontributions"]
 

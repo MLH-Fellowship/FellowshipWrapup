@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/shurcooL/graphql"
 	"golang.org/x/oauth2"
 )
 
@@ -116,14 +117,26 @@ func IsValidUsername(username string) (bool, error) {
 	if username == "" {
 		return false, errors.New("Empty username")
 	}
-	URL := fmt.Sprintf("https://github.com/%s", username)
-	res, err := http.Head(URL)
-	if err != nil {
-		return false, err
+
+	// Check if username exists in github database
+	httpClient := SetupOAuth()
+	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+	var tempStruct struct {
+		User struct {
+			Login graphql.String
+		} `graphql:"user(login: $username)"`
 	}
 
-	if res.StatusCode != 200 {
-		return false, errors.New("Invalid username")
+	variables := map[string]interface{}{
+		"username": graphql.String(username),
+	}
+
+	// Call the API
+	err := client.Query(context.Background(), &tempStruct, variables)
+	CheckAPICallErr(err)
+
+	if err != nil {
+		return false, err
 	}
 
 	return true, nil
