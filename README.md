@@ -31,7 +31,7 @@ A summary showcase of all your time spent during the MLH Fellowship.
 
 - [Bootstrap 4](https://getbootstrap.com/)
 
-- Github API
+- [Github API](https://docs.github.com/en/graphql)
 
 - JAM Stack (for static generated portfolios)
 
