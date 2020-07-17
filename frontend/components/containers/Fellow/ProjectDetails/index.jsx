@@ -25,7 +25,7 @@ function ProjectDetails({ accountInfo, contributions }) {
                 {Location && (
                   <>
                     <br />
-                    from Zapopan, Jalisco.
+                    from {Location}.
                   </>
                 )}
               </h2>

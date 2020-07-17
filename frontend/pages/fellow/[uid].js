@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Router from "next/router";
 import fetch from "isomorphic-fetch";
 
 import Header from "../../components/containers/Fellow/Header";
@@ -16,6 +17,10 @@ const Fellow = ({
   prContributions,
   prs,
 }) => {
+  if (!accountInfo) {
+    return <h1>The account you are looking for doesn't seem to exist</h1>;
+  }
+
   const filteredIssues = issueInfo.User.Issues.Nodes.filter((el) =>
     el.Url.startsWith("https://github.com/MLH-Fellowship/")
   );

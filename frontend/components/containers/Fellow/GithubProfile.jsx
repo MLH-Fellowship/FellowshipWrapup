@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
 const GithubProfile = ({ accountInfo }) => {
-  const { Name, Location, Bio } = accountInfo;
+  const { Name, Location, Bio, Url } = accountInfo;
 
   return (
-    <StyledLink href="https://github.com/sebastiancrossa" target="_blank">
+    <StyledLink href={`${Url}`} target="_blank">
       <StyledBackground>
         <div className="image-container">
           <img src="/gh-logo.png" alt="Github logo" />
