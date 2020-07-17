@@ -13,7 +13,7 @@ export default function ProgressTriangle({ issues, prs }) {
 
   return (
     <div className="container-fluid">
-      <h1 className="col-lg-8 bold-text mt-5 mb-5">PR's merged</h1>
+      <h1 className="col-lg-8 bold-text mt-5 mb-5">Performance Stats</h1>
       <div className="col-md-12">
         <h3 className="progressTriangle-title">
           <span style={{ color: "#FF1140" }}>{mergedPrs}</span> PRs merged /{" "}
@@ -25,7 +25,7 @@ export default function ProgressTriangle({ issues, prs }) {
             style={{ width: `${(mergedPrs * 100) / totalPrs}` }}
           >
             <div className="progressTriangle-value">
-              {(mergedPrs * 100) / totalPrs}%
+              {((mergedPrs * 100) / totalPrs).toFixed(2)}%
             </div>
           </div>
         </div>
@@ -47,7 +47,7 @@ export default function ProgressTriangle({ issues, prs }) {
             style={{ width: `${(solvedIssues * 100) / totalIssues}` }}
           >
             <div className="progressTriangle-value">
-              {(solvedIssues * 100) / totalIssues}%
+              {((solvedIssues * 100) / totalIssues).toFixed(2)}%
             </div>
           </div>
         </div>

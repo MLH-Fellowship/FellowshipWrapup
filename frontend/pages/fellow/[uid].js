@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Router from "next/router";
 import fetch from "isomorphic-fetch";
 
 import Header from "../../components/containers/Fellow/Header";
@@ -16,6 +17,10 @@ const Fellow = ({
   prContributions,
   prs,
 }) => {
+  if (!accountInfo) {
+    return <h1>The account you are looking for doesn't seem to exist</h1>;
+  }
+
   const filteredIssues = issueInfo.User.Issues.Nodes.filter((el) =>
     el.Url.startsWith("https://github.com/MLH-Fellowship/")
   );
@@ -83,37 +88,49 @@ Fellow.getInitialProps = async ({ query }) => {
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    }).then((res) => res.json()),
+    })
+      .then((res) => res.json())
+      .catch((err) => Router.push("/404")),
     fetch(`${process.env.BACKEND_URL}/issuescreated/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    }).then((res) => res.json()),
+    })
+      .then((res) => res.json())
+      .catch((err) => Router.push("/404")),
     fetch(`${process.env.BACKEND_URL}/repocontributedto/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    }).then((res) => res.json()),
+    })
+      .then((res) => res.json())
+      .catch((err) => Router.push("/404")),
     fetch(`${process.env.BACKEND_URL}/pullrequestcommits/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    }).then((res) => res.json()),
+    })
+      .then((res) => res.json())
+      .catch((err) => Router.push("/404")),
     fetch(`${process.env.BACKEND_URL}/prcontributions/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    }).then((res) => res.json()),
+    })
+      .then((res) => res.json())
+      .catch((err) => Router.push("/404")),
     fetch(`${process.env.BACKEND_URL}/pullrequests/${query.uid}`, {
       method: "POST",
       body: JSON.stringify({
         secret: `${process.env.BACKEND_SECRET}`,
       }),
-    }).then((res) => res.json()),
+    })
+      .then((res) => res.json())
+      .catch((err) => Router.push("/404")),
   ]);
 
   return {
