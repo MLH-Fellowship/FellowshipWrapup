@@ -4,7 +4,7 @@
 
 A summary showcase of all your time spent during the MLH Fellowship.
 
-[Insert GIF here]
+![fellowshipwrapped](https://user-images.githubusercontent.com/48270786/87963701-c1b68d80-cad6-11ea-9dc1-231675961677.gif)
 
 #### Create a shareable link to display your contributions during the Fellowship on your resume or your website!
 
