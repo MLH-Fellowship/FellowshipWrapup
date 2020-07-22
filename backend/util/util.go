@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -160,4 +161,20 @@ func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
 		return false, errors.New("Incorrect 'secret'")
 	}
 	return true, nil
+}
+
+// WriteCache writes a struct to it's associated cache file for
+// a given user
+func WriteCache(username, filename string, data interface{}) {
+	// Write to JSON file
+	dirLocation := fmt.Sprintf("../data/%s", username)
+	_ = os.Mkdir(dirLocation, 0755)
+
+	fileLocation := fmt.Sprintf("../data/%s/%s.json", username, filename)
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
 }

@@ -21,7 +21,7 @@ type response struct {
 }
 
 // VerificationMiddleware is a middlware to handle authentication
-// and checking is the username is valid before being passed onto
+// and checking if the username is valid before being passed onto
 // the requested endpoint
 func VerificationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +36,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			}
 			json.NewEncoder(w).Encode(res)
 
-			util.LogCall("POST", r.RequestURI, "401")
+			util.LogCall(r.Method, r.RequestURI, "401")
 			return
 		}
 
@@ -76,12 +76,13 @@ func HomeHandler(w http.ResponseWriter, req *http.Request) {
 func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	// If user wasn't already queried
+	// If user wasn't already queried and the cache doesn't exist then
+	// we call the API and cache the result
 	if !util.CheckUser(vars["username"], "prContributions.json") {
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
-		var tempStruct queries.MegaJSONStruct
+		tempStruct := &queries.MegaJSONStruct{}
 
 		variables := map[string]interface{}{
 			"username": graphql.String(vars["username"]),
@@ -91,17 +92,7 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 		err := client.Query(context.Background(), &tempStruct.PRContributions, variables)
 		util.CheckAPICallErr(err)
 
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/prContributions.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.PRContributions)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
+		util.WriteCache(vars["username"], "PRContributions", tempStruct.PRContributions)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.PRContributions)
@@ -138,7 +129,7 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
-		var tempStruct queries.MegaJSONStruct
+		tempStruct := &queries.MegaJSONStruct{}
 
 		variables := map[string]interface{}{
 			"username": graphql.String(vars["username"]),
@@ -148,17 +139,7 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 		err := client.Query(context.Background(), &tempStruct.PRCommits, variables)
 		util.CheckAPICallErr(err)
 
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/prCommits.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.PRCommits)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
+		util.WriteCache(vars["username"], "prCommits", tempStruct.PRCommits)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.PRCommits)
@@ -196,7 +177,7 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
-		var tempStruct queries.MegaJSONStruct
+		tempStruct := &queries.MegaJSONStruct{}
 
 		variables := map[string]interface{}{
 			"username": graphql.String(vars["username"]),
@@ -206,17 +187,7 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 		err := client.Query(context.Background(), &tempStruct.RepoContrib, variables)
 		util.CheckAPICallErr(err)
 
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/repoContribs.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.RepoContrib)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
+		util.WriteCache(vars["username"], "repoContribs", tempStruct.RepoContrib)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.RepoContrib)
@@ -254,7 +225,7 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
-		var tempStruct queries.MegaJSONStruct
+		tempStruct := &queries.MegaJSONStruct{}
 
 		variables := map[string]interface{}{
 			"username": graphql.String(vars["username"]),
@@ -264,17 +235,7 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 		err := client.Query(context.Background(), &tempStruct.Pr, variables)
 		util.CheckAPICallErr(err)
 
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/pullRequests.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.Pr)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
+		util.WriteCache(vars["username"], "pullRequests", tempStruct.Pr)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.Pr)
@@ -313,7 +274,7 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
-		var tempStruct queries.MegaJSONStruct
+		tempStruct := &queries.MegaJSONStruct{}
 
 		variables := map[string]interface{}{
 			"username": graphql.String(vars["username"]),
@@ -323,17 +284,7 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 		err := client.Query(context.Background(), &tempStruct.IssCreated, variables)
 		util.CheckAPICallErr(err)
 
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/issuesCreated.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.IssCreated)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
+		util.WriteCache(vars["username"], "issuesCreated", &tempStruct.IssCreated)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.IssCreated)
@@ -371,7 +322,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 		httpClient := util.SetupOAuth()
 		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
 
-		var tempStruct queries.MegaJSONStruct
+		tempStruct := &queries.MegaJSONStruct{}
 
 		variables := map[string]interface{}{
 			"username": graphql.String(vars["username"]),
@@ -383,8 +334,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 
 		// Write to JSON file
 		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		err = os.Mkdir(dirLocation, 0755)
-		fmt.Println(err)
+		_ = os.Mkdir(dirLocation, 0755)
 
 		fileLocation := fmt.Sprintf("../data/%s/accountInfo.json", vars["username"])
 		jsonData, err := json.Marshal(tempStruct.AccountInfo)
@@ -392,8 +342,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 			log.Fatal(err)
 		}
 
-		err = ioutil.WriteFile(fileLocation, jsonData, 0777)
-		fmt.Println(err)
+		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.AccountInfo)
@@ -401,7 +350,6 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println("Calling cache")
 	// Serve from cache instead
 	fileLocation := fmt.Sprintf("../data/%s/accountInfo.json", vars["username"])
 	content, err := ioutil.ReadFile(fileLocation)
