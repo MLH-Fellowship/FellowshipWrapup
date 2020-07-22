@@ -31,7 +31,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			}
 			json.NewEncoder(w).Encode(res)
 
-			util.LogCall(r.Method, r.RequestURI, "401")
+			util.LogCall(r.Method, r.RequestURI, "401", false)
 			return
 		}
 
@@ -43,8 +43,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 				Body:   fmt.Sprint(err),
 			}
 			json.NewEncoder(w).Encode(res)
-
-			util.LogCall(r.Method, r.RequestURI, "400")
+			util.LogCall(r.Method, r.RequestURI, "400", false)
 			return
 		}
 
@@ -63,7 +62,7 @@ func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
-	util.LogCall(req.Method, req.RequestURI, "200")
+	util.LogCall(req.Method, req.RequestURI, "200", false)
 }
 
 // GetFellowLinesOfCodeInPRs Get the additions and deletions of all
@@ -73,7 +72,7 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 
 	// If user wasn't already queried and the cache doesn't exist then
 	// we call the API and cache the result
-	if !util.CheckUser(vars["username"], "prContributions.json") {
+	if !util.CheckUser(vars["username"], "PRContributions.json") {
 
 		client := util.SetupOAuth()
 		tempStruct, variables := util.Setup(vars["username"])
@@ -86,11 +85,11 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.PRContributions)
-		util.LogCall(req.Method, req.RequestURI, "200")
+		util.LogCall(req.Method, req.RequestURI, "200", false)
 		return
 	}
 	// Serve from cache instead
-	content, err := util.ServeCache(vars["username"], "prContributions")
+	content, err := util.ServeCache(vars["username"], "PRContributions")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -99,14 +98,13 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
+		util.LogCall(req.Method, req.RequestURI, "401", false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200")
+	util.LogCall(req.Method, req.RequestURI, "200", true)
 
 }
 
@@ -127,7 +125,7 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.PRCommits)
-		util.LogCall(req.Method, req.RequestURI, "200")
+		util.LogCall(req.Method, req.RequestURI, "200", false)
 		return
 	}
 	// Serve from cache instead
@@ -140,14 +138,13 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
+		util.LogCall(req.Method, req.RequestURI, "401", false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200")
+	util.LogCall(req.Method, req.RequestURI, "200", true)
 
 }
 
@@ -169,7 +166,7 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.RepoContrib)
-		util.LogCall(req.Method, req.RequestURI, "200")
+		util.LogCall(req.Method, req.RequestURI, "200", false)
 		return
 	}
 
@@ -183,14 +180,13 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
+		util.LogCall(req.Method, req.RequestURI, "401", false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200")
+	util.LogCall(req.Method, req.RequestURI, "200", true)
 
 }
 
@@ -211,10 +207,9 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.Pr)
-		util.LogCall(req.Method, req.RequestURI, "200")
+		util.LogCall(req.Method, req.RequestURI, "200", false)
 		return
 	}
-
 	// Serve from cache instead
 	content, err := util.ServeCache(vars["username"], "pullRequests")
 	if err != nil {
@@ -225,14 +220,13 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
+		util.LogCall(req.Method, req.RequestURI, "401", false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200")
+	util.LogCall(req.Method, req.RequestURI, "200", true)
 
 }
 
@@ -253,7 +247,7 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.IssCreated)
-		util.LogCall(req.Method, req.RequestURI, "200")
+		util.LogCall(req.Method, req.RequestURI, "200", false)
 		return
 	}
 	// Serve from cache instead
@@ -266,14 +260,13 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
+		util.LogCall(req.Method, req.RequestURI, "401", false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200")
+	util.LogCall(req.Method, req.RequestURI, "200", true)
 
 }
 
@@ -294,10 +287,10 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.AccountInfo)
-		util.LogCall(req.Method, req.RequestURI, "200")
+		util.LogCall(req.Method, req.RequestURI, "200", false)
 		return
 	}
-
+	// Serve from cache instead
 	content, err := util.ServeCache(vars["username"], "accountInfo")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -307,12 +300,12 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-		util.LogCall(req.Method, req.RequestURI, "401")
+		util.LogCall(req.Method, req.RequestURI, "401", false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200")
+	util.LogCall(req.Method, req.RequestURI, "200", true)
 
 }
