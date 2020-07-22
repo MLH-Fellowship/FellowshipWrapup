@@ -1,6 +1,7 @@
 package util
 
 import (
+	"backend/queries"
 	"context"
 	"encoding/json"
 	"errors"
@@ -190,4 +191,16 @@ func ServeCache(username, filename string) (string, error) {
 	}
 
 	return string(content), nil
+}
+
+// Setup Returns the struct for JSON unmarshalling and graphQL call asiases
+// used for every call to the API
+func Setup(username string) (*queries.MegaJSONStruct, map[string]interface{}) {
+	tempStruct := &queries.MegaJSONStruct{}
+
+	variables := map[string]interface{}{
+		"username": graphql.String(username),
+	}
+
+	return tempStruct, variables
 }

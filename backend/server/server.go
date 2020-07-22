@@ -1,7 +1,6 @@
 package server
 
 import (
-	"backend/queries"
 	"backend/util"
 	"context"
 	"encoding/json"
@@ -9,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/shurcooL/graphql"
 )
 
 type response struct {
@@ -76,13 +74,9 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 	// If user wasn't already queried and the cache doesn't exist then
 	// we call the API and cache the result
 	if !util.CheckUser(vars["username"], "prContributions.json") {
+
 		client := util.SetupOAuth()
-
-		tempStruct := &queries.MegaJSONStruct{}
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
+		tempStruct, variables := util.Setup(vars["username"])
 
 		// Call the API
 		err := client.Query(context.Background(), &tempStruct.PRContributions, variables)
@@ -121,13 +115,9 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "prCommits.json") {
+
 		client := util.SetupOAuth()
-
-		tempStruct := &queries.MegaJSONStruct{}
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
+		tempStruct, variables := util.Setup(vars["username"])
 
 		// Call the API
 		err := client.Query(context.Background(), &tempStruct.PRCommits, variables)
@@ -167,13 +157,9 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "repoContribs.json") {
+
 		client := util.SetupOAuth()
-
-		tempStruct := &queries.MegaJSONStruct{}
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
+		tempStruct, variables := util.Setup(vars["username"])
 
 		// Call the API
 		err := client.Query(context.Background(), &tempStruct.RepoContrib, variables)
@@ -213,13 +199,9 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "pullRequests.json") {
+
 		client := util.SetupOAuth()
-
-		tempStruct := &queries.MegaJSONStruct{}
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
+		tempStruct, variables := util.Setup(vars["username"])
 
 		// Call the API
 		err := client.Query(context.Background(), &tempStruct.Pr, variables)
@@ -259,13 +241,9 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "issuesCreated.json") {
+
 		client := util.SetupOAuth()
-
-		tempStruct := &queries.MegaJSONStruct{}
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
+		tempStruct, variables := util.Setup(vars["username"])
 
 		// Call the API
 		err := client.Query(context.Background(), &tempStruct.IssCreated, variables)
@@ -304,13 +282,9 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "accountInfo.json") {
+
 		client := util.SetupOAuth()
-
-		tempStruct := &queries.MegaJSONStruct{}
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
+		tempStruct, variables := util.Setup(vars["username"])
 
 		// Call the API
 		err := client.Query(context.Background(), &tempStruct.AccountInfo, variables)
