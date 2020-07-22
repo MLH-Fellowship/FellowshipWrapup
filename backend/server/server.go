@@ -6,10 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/shurcooL/graphql"
@@ -100,8 +97,7 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/prContributions.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
+	content, err := util.ServeCache(vars["username"], "prContributions")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -116,7 +112,7 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
+	fmt.Fprintf(w, content)
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -147,8 +143,7 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/prCommits.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
+	content, err := util.ServeCache(vars["username"], "prCommits")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -163,7 +158,7 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
+	fmt.Fprintf(w, content)
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -196,8 +191,7 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/repoContribs.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
+	content, err := util.ServeCache(vars["username"], "repoContribs")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -212,7 +206,7 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
+	fmt.Fprintf(w, content)
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -244,8 +238,7 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/pullRequests.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
+	content, err := util.ServeCache(vars["username"], "pullRequests")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -260,7 +253,7 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
+	fmt.Fprintf(w, content)
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -292,8 +285,7 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/issuesCreated.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
+	content, err := util.ServeCache(vars["username"], "issuesCreated")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -308,7 +300,7 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
+	fmt.Fprintf(w, content)
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }
@@ -332,17 +324,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 		err := client.Query(context.Background(), &tempStruct.AccountInfo, variables)
 		util.CheckAPICallErr(err)
 
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/accountInfo.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.AccountInfo)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
+		util.WriteCache(vars["username"], "accountInfo", tempStruct.AccountInfo)
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.AccountInfo)
@@ -350,9 +332,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/accountInfo.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
+	content, err := util.ServeCache(vars["username"], "accountInfo")
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -361,13 +341,12 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-
 		util.LogCall(req.Method, req.RequestURI, "401")
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
+	fmt.Fprintf(w, content)
 	util.LogCall(req.Method, req.RequestURI, "200")
 
 }

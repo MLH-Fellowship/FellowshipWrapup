@@ -178,3 +178,15 @@ func WriteCache(username, filename string, data interface{}) {
 	}
 	_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
 }
+
+// ServeCache serves the cached result for a given user and filename
+func ServeCache(username, filename string) (string, error) {
+
+	fileLocation := fmt.Sprintf("../data/%s/%s.json", username, filename)
+	content, err := ioutil.ReadFile(fileLocation)
+	if err != nil {
+		return "", errors.New("Invalid username given, cache not found")
+	}
+
+	return string(content), nil
+}
