@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -21,6 +23,8 @@ type response struct {
 func VerificationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+		startTime := time.Now().UnixNano() / int64(time.Millisecond)
+		vars["startTime"] = strconv.FormatInt(startTime, 10)
 
 		if auth, err := util.IsAuthorized(w, r); !auth {
 			w.Header().Set("Content-Type", "application/json")
@@ -31,7 +35,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			}
 			json.NewEncoder(w).Encode(res)
 
-			util.LogCall(r.Method, r.RequestURI, "401", false)
+			util.LogCall(r.Method, r.RequestURI, "401", vars["startTime"], false)
 			return
 		}
 
@@ -43,7 +47,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 				Body:   fmt.Sprint(err),
 			}
 			json.NewEncoder(w).Encode(res)
-			util.LogCall(r.Method, r.RequestURI, "400", false)
+			util.LogCall(r.Method, r.RequestURI, "400", vars["startTime"], false)
 			return
 		}
 
@@ -54,6 +58,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 
 // HomeHandler serves the content for the home page
 func HomeHandler(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
 	res := response{
 		Status: "success",
 		Body:   "Home page",
@@ -62,7 +67,7 @@ func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
-	util.LogCall(req.Method, req.RequestURI, "200", false)
+	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 }
 
 // GetFellowLinesOfCodeInPRs Get the additions and deletions of all
@@ -85,7 +90,7 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.PRContributions)
-		util.LogCall(req.Method, req.RequestURI, "200", false)
+		util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 		return
 	}
 	// Serve from cache instead
@@ -98,13 +103,13 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-		util.LogCall(req.Method, req.RequestURI, "401", false)
+		util.LogCall(req.Method, req.RequestURI, "401", vars["startTime"], false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200", true)
+	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], true)
 
 }
 
@@ -125,7 +130,7 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.PRCommits)
-		util.LogCall(req.Method, req.RequestURI, "200", false)
+		util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 		return
 	}
 	// Serve from cache instead
@@ -138,13 +143,13 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-		util.LogCall(req.Method, req.RequestURI, "401", false)
+		util.LogCall(req.Method, req.RequestURI, "401", vars["startTime"], false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200", true)
+	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], true)
 
 }
 
@@ -166,7 +171,7 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.RepoContrib)
-		util.LogCall(req.Method, req.RequestURI, "200", false)
+		util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 		return
 	}
 
@@ -180,13 +185,13 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-		util.LogCall(req.Method, req.RequestURI, "401", false)
+		util.LogCall(req.Method, req.RequestURI, "401", vars["startTime"], false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200", true)
+	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], true)
 
 }
 
@@ -207,7 +212,7 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.Pr)
-		util.LogCall(req.Method, req.RequestURI, "200", false)
+		util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 		return
 	}
 	// Serve from cache instead
@@ -220,13 +225,13 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-		util.LogCall(req.Method, req.RequestURI, "401", false)
+		util.LogCall(req.Method, req.RequestURI, "401", vars["startTime"], false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200", true)
+	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], true)
 
 }
 
@@ -247,7 +252,7 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.IssCreated)
-		util.LogCall(req.Method, req.RequestURI, "200", false)
+		util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 		return
 	}
 	// Serve from cache instead
@@ -260,13 +265,13 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-		util.LogCall(req.Method, req.RequestURI, "401", false)
+		util.LogCall(req.Method, req.RequestURI, "401", vars["startTime"], false)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200", true)
+	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], true)
 
 }
 
@@ -287,7 +292,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(tempStruct.AccountInfo)
-		util.LogCall(req.Method, req.RequestURI, "200", false)
+		util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 		return
 	}
 	// Serve from cache instead
@@ -300,12 +305,11 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 			Body:   fmt.Sprint(err),
 		}
 		json.NewEncoder(w).Encode(res)
-		util.LogCall(req.Method, req.RequestURI, "401", false)
+		util.LogCall(req.Method, req.RequestURI, "401", vars["startTime"], false)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200", true)
+	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], true)
 
 }
