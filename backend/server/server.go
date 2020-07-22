@@ -76,8 +76,7 @@ func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
 	// If user wasn't already queried and the cache doesn't exist then
 	// we call the API and cache the result
 	if !util.CheckUser(vars["username"], "prContributions.json") {
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+		client := util.SetupOAuth()
 
 		tempStruct := &queries.MegaJSONStruct{}
 
@@ -122,8 +121,7 @@ func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "prCommits.json") {
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+		client := util.SetupOAuth()
 
 		tempStruct := &queries.MegaJSONStruct{}
 
@@ -169,8 +167,7 @@ func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "repoContribs.json") {
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+		client := util.SetupOAuth()
 
 		tempStruct := &queries.MegaJSONStruct{}
 
@@ -216,8 +213,7 @@ func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "pullRequests.json") {
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+		client := util.SetupOAuth()
 
 		tempStruct := &queries.MegaJSONStruct{}
 
@@ -263,9 +259,7 @@ func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "issuesCreated.json") {
-
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+		client := util.SetupOAuth()
 
 		tempStruct := &queries.MegaJSONStruct{}
 
@@ -310,9 +304,7 @@ func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	if !util.CheckUser(vars["username"], "accountInfo.json") {
-		fmt.Println("Calling API")
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+		client := util.SetupOAuth()
 
 		tempStruct := &queries.MegaJSONStruct{}
 

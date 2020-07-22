@@ -87,12 +87,13 @@ func CheckUser(username, fileName string) bool {
 }
 
 // SetupOAuth test
-func SetupOAuth() *http.Client {
+func SetupOAuth() *graphql.Client {
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv("GRAPHQL_TOKEN")},
 	)
 	httpClient := oauth2.NewClient(context.Background(), src)
-	return httpClient
+	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+	return client
 }
 
 func LogCall(method, endpoint, status string) {
@@ -120,8 +121,8 @@ func IsValidUsername(username string) (bool, error) {
 	}
 
 	// Check if username exists in github database
-	httpClient := SetupOAuth()
-	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+	client := SetupOAuth()
+
 	var tempStruct struct {
 		User struct {
 			Login graphql.String
