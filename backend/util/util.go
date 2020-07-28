@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -24,16 +25,14 @@ type reqStruct struct {
 }
 
 // CheckAPICallErr test
-func CheckAPICallErr(err error) {
+func CheckAPICallErr(err error) error {
 	if err == nil {
-		return
+		return nil
 	}
 	if os.Getenv("GRAPHQL_TOKEN") == "" {
 		log.Fatal("Error: You have not set your GRAPHQL_TOKEN environment variable. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to generate a token")
 	}
-
-	// fmt.Println("printing err")
-	log.Fatal(err)
+	return err
 }
 
 // fileExists returns whether the given file or directory exists
@@ -67,7 +66,7 @@ func dirEmpty(path string) bool {
 // Returns true if username is found on the /data dir
 // Returns false if username is not found
 // Returns false if username is found but is empty
-func CheckUser(username, fileName string) bool {
+func CacheExists(username, fileName string) bool {
 	var userPath strings.Builder
 	// Build path string
 	userPath.WriteString("../data/")
@@ -128,10 +127,10 @@ func LogCall(method, endpoint, status, startTimeString string, cached bool) {
 // a non 200 the profile doesnt exist and we dont call the API
 // Returns true if the user is found
 // Returns false otherwise
-func IsValidUsername(username string) (bool, error) {
+func IsValidUsername(username string) bool {
 	// Empty username will yield 200 on github
 	if username == "" {
-		return false, errors.New("Empty username")
+		return false
 	}
 
 	// Check if username exists in github database
@@ -152,10 +151,10 @@ func IsValidUsername(username string) (bool, error) {
 	CheckAPICallErr(err)
 
 	if err != nil {
-		return false, err
+		return false
 	}
 
-	return true, nil
+	return true
 }
 
 // IsAuthorized checks if a request contains the correct server key
@@ -189,15 +188,32 @@ func WriteCache(username, filename string, data interface{}) {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
+		fmt.Println("ok lads")
 		log.Fatal(err)
 	}
 	_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
 }
 
-// ServeCache serves the cached result for a given user and filename
-func ServeCache(username, filename string) (string, error) {
+// IsValidQueryType determines if an incoming query is
+// implemented by the service
+func IsValidQueryType(query string) (string, error) {
+	validTypes := []string{"accountinfo", "pullrequestcommits",
+		"pullrequests", "issuescreated",
+		"prcontributions", "repocontribs"}
+	query = strings.ToLower(query)
 
-	fileLocation := fmt.Sprintf("../data/%s/%s.json", username, filename)
+	for _, elem := range validTypes {
+		if query == elem {
+			return fmt.Sprintf("%s.json", elem), nil
+		}
+	}
+	return "", errors.New("Invalid query type given")
+}
+
+// GetCache returns the cached result for a given user and filename
+func GetCache(username, filename string) (string, error) {
+
+	fileLocation := fmt.Sprintf("../data/%s/%s", username, filename)
 	content, err := ioutil.ReadFile(fileLocation)
 	if err != nil {
 		return "", errors.New("Invalid username given, cache not found")
@@ -206,14 +222,35 @@ func ServeCache(username, filename string) (string, error) {
 	return string(content), nil
 }
 
-// Setup Returns the struct for JSON unmarshalling and graphQL call asiases
-// used for every call to the API
-func Setup(username string) (*queries.MegaJSONStruct, map[string]interface{}) {
+// GetStruct returns the correct struct type based on the query type given
+func GetStruct(query, username string) (interface{}, map[string]interface{}) {
 	tempStruct := &queries.MegaJSONStruct{}
-
 	variables := map[string]interface{}{
 		"username": graphql.String(username),
 	}
 
-	return tempStruct, variables
+	query = strings.ToLower(query)
+
+	switch query {
+	case "accountinfo":
+		structType := reflect.TypeOf(tempStruct.AccountInfo)
+		return reflect.New(structType).Interface(), variables
+	case "pullrequests":
+		structType := reflect.TypeOf(tempStruct.Pr)
+		return reflect.New(structType).Interface(), variables
+	case "issuescreated":
+		structType := reflect.TypeOf(tempStruct.IssCreated)
+		return reflect.New(structType).Interface(), variables
+	case "prcontributions":
+		structType := reflect.TypeOf(tempStruct.PRContributions)
+		return reflect.New(structType).Interface(), variables
+	case "pullrequestcommits":
+		structType := reflect.TypeOf(tempStruct.PRCommits)
+		return reflect.New(structType).Interface(), variables
+	case "repocontribs":
+		structType := reflect.TypeOf(tempStruct.PRCommits)
+		return reflect.New(structType).Interface(), variables
+	default:
+		return nil, variables
+	}
 }
