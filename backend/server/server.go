@@ -20,7 +20,7 @@ type response struct {
 }
 
 // VerificationMiddleware is a middlware to handle authentication
-// and checking if the username and query type is valid before being
+// and checks if username and query type are valid before being
 // passed onto the requested endpoint
 func VerificationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
