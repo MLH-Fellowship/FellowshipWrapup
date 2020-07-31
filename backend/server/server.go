@@ -19,7 +19,7 @@ type response struct {
 	Body   string `json:"body"`
 }
 
-// VerificationMiddleware is a middlware to handle authentication
+// VerificationMiddleware handles authentication
 // and checking if the username and query type is valid before being
 // passed onto the requested endpoint
 func VerificationMiddleware(next http.Handler) http.Handler {
@@ -29,44 +29,24 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 		vars["startTime"] = strconv.FormatInt(startTime, 10)
 
 		if auth, err := util.IsAuthorized(w, r); !auth {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			res := response{
-				Status: "401",
-				Body:   fmt.Sprint(err),
-			}
-			json.NewEncoder(w).Encode(res)
-			util.LogCall(r.Method, r.RequestURI, "401", vars["startTime"], false)
+			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
 			return
 		}
 
 		if validUsername := util.IsValidUsername(vars["username"]); !validUsername {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			res := response{
-				Status: "422",
-				Body:   "Invalid username given",
-			}
-			json.NewEncoder(w).Encode(res)
-			util.LogCall(r.Method, r.RequestURI, "400", vars["startTime"], false)
+			util.SendErrorResponse(w, r, http.StatusBadRequest, vars["startTime"], "Invalid username given")
 			return
 		}
 
 		fileName, err := util.IsValidQueryType(vars["query"])
 		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			res := response{
-				Status: "401",
-				Body:   fmt.Sprint(err),
-			}
-			json.NewEncoder(w).Encode(res)
-			util.LogCall(r.Method, r.RequestURI, "401", vars["startTime"], false)
+			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
 			return
 		}
 
 		vars["fileName"] = strings.ToLower(fileName)
 		vars["query"] = strings.ToLower(vars["query"])
+
 		next.ServeHTTP(w, r)
 
 	})
@@ -90,38 +70,24 @@ func Query(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
 	// Call the GitHub API and cache the result
-	if !util.CacheExists(vars["username"], vars["fileName"]) {
+	if !util.CacheExists(fmt.Sprintf("../data/%s/%s", vars["username"], vars["fileName"])) {
 
 		client := util.SetupOAuth()
 		dataStruct, variables := util.GetStruct(vars["query"], vars["username"])
 		if dataStruct == nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			res := response{
-				Status: "401",
-				Body:   fmt.Sprint("Invalid query type given"),
-			}
-			json.NewEncoder(w).Encode(res)
-			util.LogCall(req.Method, req.RequestURI, "401", vars["startTime"], false)
+			util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint("Invalid query type given"))
 			return
 		}
 
 		err := client.Query(context.Background(), dataStruct, variables)
-		err = util.CheckAPICallErr(err)
-		if err != nil {
+		if err = util.CheckAPICallErr(err); err != nil {
 			// This catches errors thrown due to invalid usernames which is rare if not caught by the
 			// verification middleware
-			match, err := regexp.MatchString(`(Could not resolve to a User  with the login of \')(.)+(\')`, err.Error())
+			match, err := regexp.MatchString(`(Could not resolve to a User with the login of \')(.)+(\')`, err.Error())
 			if err != nil && !match {
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusUnauthorized)
-				res := response{
-					Status: "401",
-					Body:   fmt.Sprint("Invalid username given"),
-				}
-				json.NewEncoder(w).Encode(res)
-				util.LogCall(req.Method, req.RequestURI, "401", vars["startTime"], false)
+				util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint("Invalid query type given"))
 				return
+
 			}
 		}
 
@@ -133,18 +99,13 @@ func Query(w http.ResponseWriter, req *http.Request) {
 		util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 		return
 	}
+
 	// Serve from cache instead
 	content, err := util.GetCache(vars["username"], vars["fileName"])
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		res := response{
-			Status: "401",
-			Body:   fmt.Sprint(err),
-		}
-		json.NewEncoder(w).Encode(res)
-		util.LogCall(req.Method, req.RequestURI, "401", vars["startTime"], false)
+		util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
 		return
+
 	}
 
 	w.Header().Set("Content-Type", "application/json")

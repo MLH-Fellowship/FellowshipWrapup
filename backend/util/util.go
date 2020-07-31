@@ -24,6 +24,11 @@ type reqStruct struct {
 	Secret string
 }
 
+type response struct {
+	Status string `json:"status"`
+	Body   string `json:"body"`
+}
+
 // CheckAPICallErr test
 func CheckAPICallErr(err error) error {
 	if err == nil {
@@ -35,8 +40,8 @@ func CheckAPICallErr(err error) error {
 	return err
 }
 
-// fileExists returns whether the given file or directory exists
-func fileExists(path string) bool {
+// CacheExists returns whether the given cached file exists
+func CacheExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true
@@ -60,31 +65,6 @@ func dirEmpty(path string) bool {
 		return true
 	}
 	return false // Either not empty or error, suits both cases
-}
-
-// CheckUser checks if a user was already queried
-// Returns true if username is found on the /data dir
-// Returns false if username is not found
-// Returns false if username is found but is empty
-func CacheExists(username, fileName string) bool {
-	var userPath strings.Builder
-	// Build path string
-	userPath.WriteString("../data/")
-	userPath.WriteString(username)
-	userPath.WriteString("/" + fileName)
-
-	// Check if directory /data/{username}/{fileName} exists
-	if !fileExists(userPath.String()) {
-		return false
-	}
-
-	// // Check if directory /data/{username} is empty
-	// if dirEmpty(userPath.String()) {
-	// 	os.Remove(userPath.String()) // Delete empty dir
-	// 	return false
-	// }
-
-	return true
 }
 
 // SetupOAuth test
@@ -171,13 +151,12 @@ func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
 	}
 
 	if req.Secret != os.Getenv("secretKey") {
-		fmt.Println(req.Secret)
 		return false, errors.New("Incorrect 'secret'")
 	}
 	return true, nil
 }
 
-// WriteCache writes a struct to it's associated cache file for
+// WriteCache writes a struct to its associated cache file for
 // a given user
 func WriteCache(username, filename string, data interface{}) {
 	// Write to JSON file
@@ -197,16 +176,24 @@ func WriteCache(username, filename string, data interface{}) {
 // IsValidQueryType determines if an incoming query is
 // implemented by the service
 func IsValidQueryType(query string) (string, error) {
-	validTypes := []string{"accountinfo", "pullrequestcommits",
-		"pullrequests", "issuescreated",
-		"prcontributions", "repocontribs"}
+	// validTypes := []string{"accountinfo", "pullrequestcommits",
+	// 	"pullrequests", "issuescreated",
+	// 	"prcontributions", "repocontribs"}
+
+	validTypes := map[string]bool{
+		"accountinfo":        true,
+		"pullrequestcommits": true,
+		"pullrequests":       true,
+		"issuescreated":      true,
+		"prcontributions":    true,
+		"repocontribs":       true,
+	}
 	query = strings.ToLower(query)
 
-	for _, elem := range validTypes {
-		if query == elem {
-			return fmt.Sprintf("%s.json", elem), nil
-		}
+	if validTypes[query] {
+		return fmt.Sprintf("%s.json", query), nil
 	}
+
 	return "", errors.New("Invalid query type given")
 }
 
@@ -220,6 +207,18 @@ func GetCache(username, filename string) (string, error) {
 	}
 
 	return string(content), nil
+}
+
+func SendErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, startTime, errorString string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnauthorized)
+	res := response{
+		Status: "422",
+		Body:   errorString,
+	}
+	json.NewEncoder(w).Encode(res)
+	LogCall(r.Method, r.RequestURI, strconv.Itoa(httpStatus), startTime, false)
+	return
 }
 
 // GetStruct returns the correct struct type based on the query type given
