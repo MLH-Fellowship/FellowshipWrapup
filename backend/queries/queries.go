@@ -5,89 +5,11 @@ import (
 )
 
 type MegaJSONStruct struct {
-	RepoContrib     repositoriesContributedTo
-	Pr              pullRequests
-	IssCreated      issuesCreated
-	PRContributions linesofCodeInPRs
-	PRCommits       commitsOnPRs
-	AccountInfo     accountInformation
-}
-
-type linesofCodeInPRs struct {
-	User struct {
-		PullRequests struct {
-			TotalCount graphql.Int
-			Nodes      []struct {
-				Url         graphql.String
-				CreatedAt   graphql.String
-				MergeCommit struct {
-					Additions graphql.Int
-					Deletions graphql.Int
-				}
-			}
-		} `graphql:"pullRequests(first: 50, states:MERGED)"`
-	} `graphql:"user(login:$username)"`
-}
-
-type commitsOnPRs struct {
-	User struct {
-		PullRequests struct {
-			TotalCount graphql.Int
-			Nodes      []struct {
-				Url       graphql.String
-				CreatedAt graphql.String
-				Commit    struct {
-					TotalCount graphql.Int
-				} `graphql:"commits(first: 1)"`
-			}
-		} `graphql:"pullRequests(first: 30, states:MERGED)"`
-	} `graphql:"user(login:$username)"`
-}
-
-type repositoriesContributedTo struct {
-	User struct {
-		PullRequests struct {
-			TotalCount graphql.Int
-			Nodes      []struct {
-				CreatedAt       graphql.String
-				Name            graphql.String
-				Url             graphql.String
-				PrimaryLanguage struct {
-					Name graphql.String
-				}
-				Languages struct {
-					Nodes []struct {
-						Name graphql.String
-					}
-				} `graphql:"languages(first: 5)"`
-			}
-		} `graphql:"repositoriesContributedTo(first: 25, contributionTypes:[PULL_REQUEST])"`
-	} `graphql:"user(login:$username)"`
-}
-
-type pullRequests struct {
-	User struct {
-		PullRequests struct {
-			Nodes []struct {
-				CreatedAt graphql.String
-				Merged    graphql.Boolean
-				Url       graphql.String
-			}
-		} `graphql:"pullRequests(first:30)"`
-	} `graphql:"user(login: $username)"`
-}
-
-type issuesCreated struct {
-	User struct {
-		Issues struct {
-			TotalCount graphql.Int
-			Nodes      []struct {
-				Url       graphql.String
-				CreatedAt graphql.String
-				Closed    graphql.Boolean
-			}
-		} `graphql:"issues(first:20)"`
-	} `graphql:"user(login: $username)"`
+	AccountInfo        accountInformation
+	PRs                PullRequests
+	InvolveIssues      InvolvedIssues
+	OpenVsClosedIssues IssuesOpenVsClosed
+	ReposContribedTo   ReposContributedTo
 }
 
 type accountInformation struct {
@@ -101,4 +23,83 @@ type accountInformation struct {
 		WebsiteUrl      graphql.String
 		TwitterUsername graphql.String
 	} `graphql:"user(login: $username)"`
+}
+
+type PullRequests struct {
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url         graphql.String
+				Title       graphql.String
+				CreatedAt   graphql.String
+				MergedAt    graphql.String
+				MergeCommit struct {
+					Additions graphql.Int
+					Deletions graphql.Int
+				}
+				Commits struct {
+					TotalCount graphql.Int
+				} `graphql:"commits(first: 1)"`
+				Repository struct {
+					Url             graphql.String
+					Name            graphql.String
+					PrimaryLanguage struct {
+						Name graphql.String
+					}
+				}
+			}
+		} `graphql:"pullRequests(first:5, states: MERGED)"`
+	} `graphql:"user(login: $username)"`
+}
+
+type InvolvedIssues struct {
+	User struct {
+		IssueComments struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Issue struct {
+					Title graphql.String
+				}
+				Url        graphql.String
+				Repository struct {
+					Name            graphql.String
+					Url             graphql.String
+					PrimaryLanguage struct {
+						Name graphql.String
+					}
+				}
+			}
+		} `graphql:"issueComments(last: 15)"`
+	} `graphql:"user(login: $username)"`
+}
+
+type IssuesOpenVsClosed struct {
+	User struct {
+		Issues struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				State graphql.String
+			}
+		} `graphql:"issues(first: 20, states:[OPEN,CLOSED])"`
+	} `graphql:"user(login: $username)"`
+}
+
+type ReposContributedTo struct {
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Name            graphql.String
+				Description     graphql.String
+				Url             graphql.String
+				PrimaryLanguage struct {
+					Name graphql.String
+				}
+				StarGazers struct {
+					TotalCount graphql.Int
+				} `graphql:"stargazers(first: 1)"`
+			}
+		} `graphql:"repositoriesContributedTo(first: 25)"`
+	} `graphql:"user(login:$username)"`
 }

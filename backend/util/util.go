@@ -182,11 +182,10 @@ func IsValidQueryType(query string) (string, error) {
 
 	validTypes := map[string]bool{
 		"accountinfo":        true,
-		"pullrequestcommits": true,
 		"pullrequests":       true,
-		"issuescreated":      true,
-		"prcontributions":    true,
-		"repocontribs":       true,
+		"involvedissues":     true,
+		"openvsclosedissues": true,
+		"reposcontributedto": true,
 	}
 	query = strings.ToLower(query)
 
@@ -235,19 +234,16 @@ func GetStruct(query, username string) (interface{}, map[string]interface{}) {
 		structType := reflect.TypeOf(tempStruct.AccountInfo)
 		return reflect.New(structType).Interface(), variables
 	case "pullrequests":
-		structType := reflect.TypeOf(tempStruct.Pr)
+		structType := reflect.TypeOf(tempStruct.PRs)
 		return reflect.New(structType).Interface(), variables
-	case "issuescreated":
-		structType := reflect.TypeOf(tempStruct.IssCreated)
+	case "involvedissues":
+		structType := reflect.TypeOf(tempStruct.InvolveIssues)
 		return reflect.New(structType).Interface(), variables
-	case "prcontributions":
-		structType := reflect.TypeOf(tempStruct.PRContributions)
+	case "openvsclosedissues":
+		structType := reflect.TypeOf(tempStruct.OpenVsClosedIssues)
 		return reflect.New(structType).Interface(), variables
-	case "pullrequestcommits":
-		structType := reflect.TypeOf(tempStruct.PRCommits)
-		return reflect.New(structType).Interface(), variables
-	case "repocontribs":
-		structType := reflect.TypeOf(tempStruct.PRCommits)
+	case "reposcontributedto":
+		structType := reflect.TypeOf(tempStruct.ReposContribedTo)
 		return reflect.New(structType).Interface(), variables
 	default:
 		return nil, variables
