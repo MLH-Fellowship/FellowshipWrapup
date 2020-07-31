@@ -1,14 +1,18 @@
 package util
 
 import (
+	"backend/queries"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -20,21 +24,24 @@ type reqStruct struct {
 	Secret string
 }
 
+type response struct {
+	Status string `json:"status"`
+	Body   string `json:"body"`
+}
+
 // CheckAPICallErr test
-func CheckAPICallErr(err error) {
+func CheckAPICallErr(err error) error {
 	if err == nil {
-		return
+		return nil
 	}
 	if os.Getenv("GRAPHQL_TOKEN") == "" {
 		log.Fatal("Error: You have not set your GRAPHQL_TOKEN environment variable. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to generate a token")
 	}
-
-	// fmt.Println("printing err")
-	log.Fatal(err)
+	return err
 }
 
-// fileExists returns whether the given file or directory exists
-func fileExists(path string) bool {
+// CacheExists returns whether the given cached file exists
+func CacheExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true
@@ -60,42 +67,30 @@ func dirEmpty(path string) bool {
 	return false // Either not empty or error, suits both cases
 }
 
-// CheckUser checks if a user was already queried
-// Returns true if username is found on the /data dir
-// Returns false if username is not found
-// Returns false if username is found but is empty
-func CheckUser(username, fileName string) bool {
-	var userPath strings.Builder
-	// Build path string
-	userPath.WriteString("../data/")
-	userPath.WriteString(username)
-	userPath.WriteString("/" + fileName)
-
-	// Check if directory /data/{username}/{fileName} exists
-	if !fileExists(userPath.String()) {
-		return false
-	}
-
-	// // Check if directory /data/{username} is empty
-	// if dirEmpty(userPath.String()) {
-	// 	os.Remove(userPath.String()) // Delete empty dir
-	// 	return false
-	// }
-
-	return true
-}
-
 // SetupOAuth test
-func SetupOAuth() *http.Client {
+func SetupOAuth() *graphql.Client {
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv("GRAPHQL_TOKEN")},
 	)
 	httpClient := oauth2.NewClient(context.Background(), src)
-	return httpClient
+	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+	return client
 }
 
-func LogCall(method, endpoint, status string) {
+func LogCall(method, endpoint, status, startTimeString string, cached bool) {
 	statusColor := "\033[0m"
+	cacheString := ""
+
+	if cached {
+		cacheString = "[CACHE] "
+	}
+
+	startTime, err := strconv.ParseInt(startTimeString, 10, 64)
+	if err != nil {
+		startTime = -1
+	}
+	endTime := time.Now().UnixNano() / int64(time.Millisecond)
+	delay := endTime - startTime
 
 	// If the HTTP status given is 2XX, give it a nice
 	// green color, otherwise give it a red color
@@ -104,7 +99,7 @@ func LogCall(method, endpoint, status string) {
 	} else {
 		statusColor = "\033[31m"
 	}
-	fmt.Printf("[%s] %s %s %s%s%s\n", time.Now().Format("02-Jan-2006 15:04:05"), method, endpoint, statusColor, status, "\033[0m")
+	fmt.Printf("[%s]%s%s %s %s%s%s %dms\n", time.Now().Format("02-Jan-2006 15:04:05"), cacheString, method, endpoint, statusColor, status, "\033[0m", delay)
 }
 
 // IsValidUsername checks if a gihub username exists
@@ -112,15 +107,15 @@ func LogCall(method, endpoint, status string) {
 // a non 200 the profile doesnt exist and we dont call the API
 // Returns true if the user is found
 // Returns false otherwise
-func IsValidUsername(username string) (bool, error) {
+func IsValidUsername(username string) bool {
 	// Empty username will yield 200 on github
 	if username == "" {
-		return false, errors.New("Empty username")
+		return false
 	}
 
 	// Check if username exists in github database
-	httpClient := SetupOAuth()
-	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+	client := SetupOAuth()
+
 	var tempStruct struct {
 		User struct {
 			Login graphql.String
@@ -136,10 +131,10 @@ func IsValidUsername(username string) (bool, error) {
 	CheckAPICallErr(err)
 
 	if err != nil {
-		return false, err
+		return false
 	}
 
-	return true, nil
+	return true
 }
 
 // IsAuthorized checks if a request contains the correct server key
@@ -156,8 +151,105 @@ func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
 	}
 
 	if req.Secret != os.Getenv("secretKey") {
-		fmt.Println(req.Secret)
 		return false, errors.New("Incorrect 'secret'")
 	}
 	return true, nil
+}
+
+// WriteCache writes a struct to its associated cache file for
+// a given user
+func WriteCache(username, filename string, data interface{}) {
+	// Write to JSON file
+	dirLocation := fmt.Sprintf("../data/%s", username)
+	_ = os.Mkdir(dirLocation, 0755)
+
+	fileLocation := fmt.Sprintf("../data/%s/%s.json", username, filename)
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println("ok lads")
+		log.Fatal(err)
+	}
+	_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
+}
+
+// IsValidQueryType determines if an incoming query is
+// implemented by the service
+func IsValidQueryType(query string) (string, error) {
+	// validTypes := []string{"accountinfo", "pullrequestcommits",
+	// 	"pullrequests", "issuescreated",
+	// 	"prcontributions", "repocontribs"}
+
+	validTypes := map[string]bool{
+		"accountinfo":        true,
+		"pullrequestcommits": true,
+		"pullrequests":       true,
+		"issuescreated":      true,
+		"prcontributions":    true,
+		"repocontribs":       true,
+	}
+	query = strings.ToLower(query)
+
+	if validTypes[query] {
+		return fmt.Sprintf("%s.json", query), nil
+	}
+
+	return "", errors.New("Invalid query type given")
+}
+
+// GetCache returns the cached result for a given user and filename
+func GetCache(username, filename string) (string, error) {
+
+	fileLocation := fmt.Sprintf("../data/%s/%s", username, filename)
+	content, err := ioutil.ReadFile(fileLocation)
+	if err != nil {
+		return "", errors.New("Invalid username given, cache not found")
+	}
+
+	return string(content), nil
+}
+
+func SendErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, startTime, errorString string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnauthorized)
+	res := response{
+		Status: "422",
+		Body:   errorString,
+	}
+	json.NewEncoder(w).Encode(res)
+	LogCall(r.Method, r.RequestURI, strconv.Itoa(httpStatus), startTime, false)
+	return
+}
+
+// GetStruct returns the correct struct type based on the query type given
+func GetStruct(query, username string) (interface{}, map[string]interface{}) {
+	tempStruct := &queries.MegaJSONStruct{}
+	variables := map[string]interface{}{
+		"username": graphql.String(username),
+	}
+
+	query = strings.ToLower(query)
+
+	switch query {
+	case "accountinfo":
+		structType := reflect.TypeOf(tempStruct.AccountInfo)
+		return reflect.New(structType).Interface(), variables
+	case "pullrequests":
+		structType := reflect.TypeOf(tempStruct.Pr)
+		return reflect.New(structType).Interface(), variables
+	case "issuescreated":
+		structType := reflect.TypeOf(tempStruct.IssCreated)
+		return reflect.New(structType).Interface(), variables
+	case "prcontributions":
+		structType := reflect.TypeOf(tempStruct.PRContributions)
+		return reflect.New(structType).Interface(), variables
+	case "pullrequestcommits":
+		structType := reflect.TypeOf(tempStruct.PRCommits)
+		return reflect.New(structType).Interface(), variables
+	case "repocontribs":
+		structType := reflect.TypeOf(tempStruct.PRCommits)
+		return reflect.New(structType).Interface(), variables
+	default:
+		return nil, variables
+	}
 }

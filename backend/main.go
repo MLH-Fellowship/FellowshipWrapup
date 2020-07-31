@@ -17,12 +17,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", server.HomeHandler).Methods("GET")
-	r.HandleFunc("/accountinfo/{username}", server.GetFellowAccountInfo).Methods("POST")
-	r.HandleFunc("/issuescreated/{username}", server.GetFellowIssuesCreated).Methods("POST")
-	r.HandleFunc("/pullrequests/{username}", server.GetFellowPullRequests).Methods("POST")
-	r.HandleFunc("/repocontributedto/{username}", server.GetFellowRepoContributions).Methods("POST")
-	r.HandleFunc("/pullrequestcommits/{username}", server.GetFellowPullRequestCommits).Methods("POST")
-	r.HandleFunc("/prcontributions/{username}", server.GetFellowLinesOfCodeInPRs).Methods("POST")
+	r.HandleFunc("/{query}/{username}", server.Query).Methods("POST")
 	r.Use(server.VerificationMiddleware)
 
 	log.Println("Starting web server on localhost:8080")

@@ -1,18 +1,17 @@
 package server
 
 import (
-	"backend/queries"
 	"backend/util"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/shurcooL/graphql"
 )
 
 type response struct {
@@ -20,38 +19,33 @@ type response struct {
 	Body   string `json:"body"`
 }
 
-// VerificationMiddleware is a middlware to handle authentication
-// and checking is the username is valid before being passed onto
-// the requested endpoint
+// VerificationMiddleware handles authentication
+// and checking if the username and query type is valid before being
+// passed onto the requested endpoint
 func VerificationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+		startTime := time.Now().UnixNano() / int64(time.Millisecond)
+		vars["startTime"] = strconv.FormatInt(startTime, 10)
 
 		if auth, err := util.IsAuthorized(w, r); !auth {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			res := response{
-				Status: "401",
-				Body:   fmt.Sprint(err),
-			}
-			json.NewEncoder(w).Encode(res)
-
-			util.LogCall("POST", r.RequestURI, "401")
+			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
 			return
 		}
 
-		if v, err := util.IsValidUsername(vars["username"]); !v {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			res := response{
-				Status: "422",
-				Body:   fmt.Sprint(err),
-			}
-			json.NewEncoder(w).Encode(res)
-
-			util.LogCall(r.Method, r.RequestURI, "400")
+		if validUsername := util.IsValidUsername(vars["username"]); !validUsername {
+			util.SendErrorResponse(w, r, http.StatusBadRequest, vars["startTime"], "Invalid username given")
 			return
 		}
+
+		fileName, err := util.IsValidQueryType(vars["query"])
+		if err != nil {
+			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
+			return
+		}
+
+		vars["fileName"] = strings.ToLower(fileName)
+		vars["query"] = strings.ToLower(vars["query"])
 
 		next.ServeHTTP(w, r)
 
@@ -60,6 +54,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 
 // HomeHandler serves the content for the home page
 func HomeHandler(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
 	res := response{
 		Status: "success",
 		Body:   "Home page",
@@ -68,358 +63,53 @@ func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
-	util.LogCall(req.Method, req.RequestURI, "200")
+	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 }
 
-// GetFellowLinesOfCodeInPRs Get the additions and deletions of all
-// PRs for a given user
-func GetFellowLinesOfCodeInPRs(w http.ResponseWriter, req *http.Request) {
+func Query(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
-	// If user wasn't already queried
-	if !util.CheckUser(vars["username"], "prContributions.json") {
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
+	// Call the GitHub API and cache the result
+	if !util.CacheExists(fmt.Sprintf("../data/%s/%s", vars["username"], vars["fileName"])) {
 
-		var tempStruct queries.MegaJSONStruct
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
+		client := util.SetupOAuth()
+		dataStruct, variables := util.GetStruct(vars["query"], vars["username"])
+		if dataStruct == nil {
+			util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint("Invalid query type given"))
+			return
 		}
 
-		// Call the API
-		err := client.Query(context.Background(), &tempStruct.PRContributions, variables)
-		util.CheckAPICallErr(err)
+		err := client.Query(context.Background(), dataStruct, variables)
+		if err = util.CheckAPICallErr(err); err != nil {
+			// This catches errors thrown due to invalid usernames which is rare if not caught by the
+			// verification middleware
+			match, err := regexp.MatchString(`(Could not resolve to a User with the login of \')(.)+(\')`, err.Error())
+			if err != nil && !match {
+				util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint("Invalid query type given"))
+				return
 
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/prContributions.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.PRContributions)
-		if err != nil {
-			log.Fatal(err)
+			}
 		}
 
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
+		util.WriteCache(vars["username"], vars["query"], dataStruct)
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tempStruct.PRContributions)
-		util.LogCall(req.Method, req.RequestURI, "200")
-		return
-	}
-	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/prContributions.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		res := response{
-			Status: "401",
-			Body:   fmt.Sprint(err),
-		}
-		json.NewEncoder(w).Encode(res)
+		json.NewEncoder(w).Encode(dataStruct)
 
-		util.LogCall(req.Method, req.RequestURI, "401")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
-	util.LogCall(req.Method, req.RequestURI, "200")
-
-}
-
-// GetFellowPullRequestCommits gets the commits from pull requests
-func GetFellowPullRequestCommits(w http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-
-	if !util.CheckUser(vars["username"], "prCommits.json") {
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
-
-		var tempStruct queries.MegaJSONStruct
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
-
-		// Call the API
-		err := client.Query(context.Background(), &tempStruct.PRCommits, variables)
-		util.CheckAPICallErr(err)
-
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/prCommits.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.PRCommits)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tempStruct.PRCommits)
-		util.LogCall(req.Method, req.RequestURI, "200")
-		return
-	}
-	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/prCommits.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		res := response{
-			Status: "401",
-			Body:   fmt.Sprint(err),
-		}
-		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
-	util.LogCall(req.Method, req.RequestURI, "200")
-
-}
-
-// GetFellowRepoContributions get a list of all repositories a user has
-// contributed to
-func GetFellowRepoContributions(w http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-
-	if !util.CheckUser(vars["username"], "repoContribs.json") {
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
-
-		var tempStruct queries.MegaJSONStruct
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
-
-		// Call the API
-		err := client.Query(context.Background(), &tempStruct.RepoContrib, variables)
-		util.CheckAPICallErr(err)
-
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/repoContribs.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.RepoContrib)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tempStruct.RepoContrib)
-		util.LogCall(req.Method, req.RequestURI, "200")
+		util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 		return
 	}
 
 	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/repoContribs.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
+	content, err := util.GetCache(vars["username"], vars["fileName"])
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		res := response{
-			Status: "401",
-			Body:   fmt.Sprint(err),
-		}
-		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
+		util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
 		return
+
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
-	util.LogCall(req.Method, req.RequestURI, "200")
-
-}
-
-// GetFellowPullRequests get a list of the most recent PRs made by a user
-func GetFellowPullRequests(w http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-
-	if !util.CheckUser(vars["username"], "pullRequests.json") {
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
-
-		var tempStruct queries.MegaJSONStruct
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
-
-		// Call the API
-		err := client.Query(context.Background(), &tempStruct.Pr, variables)
-		util.CheckAPICallErr(err)
-
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/pullRequests.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.Pr)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tempStruct.Pr)
-		util.LogCall(req.Method, req.RequestURI, "200")
-		return
-	}
-
-	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/pullRequests.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		res := response{
-			Status: "401",
-			Body:   fmt.Sprint(err),
-		}
-		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
-	util.LogCall(req.Method, req.RequestURI, "200")
-
-}
-
-// GetFellowIssuesCreated get a list of the recent issues created by a user
-func GetFellowIssuesCreated(w http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-
-	if !util.CheckUser(vars["username"], "issuesCreated.json") {
-
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
-
-		var tempStruct queries.MegaJSONStruct
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
-
-		// Call the API
-		err := client.Query(context.Background(), &tempStruct.IssCreated, variables)
-		util.CheckAPICallErr(err)
-
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		_ = os.Mkdir(dirLocation, 0755)
-
-		fileLocation := fmt.Sprintf("../data/%s/issuesCreated.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.IssCreated)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		_ = ioutil.WriteFile(fileLocation, jsonData, 0777)
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tempStruct.IssCreated)
-		util.LogCall(req.Method, req.RequestURI, "200")
-		return
-	}
-	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/issuesCreated.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		res := response{
-			Status: "401",
-			Body:   fmt.Sprint(err),
-		}
-		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
-	util.LogCall(req.Method, req.RequestURI, "200")
-
-}
-
-// GetFellowAccountInfo get account information for a given user
-func GetFellowAccountInfo(w http.ResponseWriter, req *http.Request) {
-	vars := mux.Vars(req)
-
-	if !util.CheckUser(vars["username"], "accountInfo.json") {
-		fmt.Println("Calling API")
-		httpClient := util.SetupOAuth()
-		client := graphql.NewClient("https://api.github.com/graphql", httpClient)
-
-		var tempStruct queries.MegaJSONStruct
-
-		variables := map[string]interface{}{
-			"username": graphql.String(vars["username"]),
-		}
-
-		// Call the API
-		err := client.Query(context.Background(), &tempStruct.AccountInfo, variables)
-		util.CheckAPICallErr(err)
-
-		// Write to JSON file
-		dirLocation := fmt.Sprintf("../data/%s", vars["username"])
-		err = os.Mkdir(dirLocation, 0755)
-		fmt.Println(err)
-
-		fileLocation := fmt.Sprintf("../data/%s/accountInfo.json", vars["username"])
-		jsonData, err := json.Marshal(tempStruct.AccountInfo)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		err = ioutil.WriteFile(fileLocation, jsonData, 0777)
-		fmt.Println(err)
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tempStruct.AccountInfo)
-		util.LogCall(req.Method, req.RequestURI, "200")
-		return
-	}
-
-	fmt.Println("Calling cache")
-	// Serve from cache instead
-	fileLocation := fmt.Sprintf("../data/%s/accountInfo.json", vars["username"])
-	content, err := ioutil.ReadFile(fileLocation)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		res := response{
-			Status: "401",
-			Body:   fmt.Sprint(err),
-		}
-		json.NewEncoder(w).Encode(res)
-
-		util.LogCall(req.Method, req.RequestURI, "401")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, string(content))
-	util.LogCall(req.Method, req.RequestURI, "200")
+	fmt.Fprintf(w, content)
+	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], true)
 
 }
