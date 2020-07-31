@@ -1,9 +1,17 @@
 # Queries
 
-All queries must have a `secret` field in the request body with the correct key. If a field is not set it will not be ommited it will simply be empty.
+All queries must have a `secret` field in the request body with the correct key. 
+
+If a field in the response is not set it will not be ommited, it will simply be empty.
+
+The easiest way to test the API is to use the `test.py` script or you can manually test endpoints using curl with a command such as:
+```
+curl -v -X POST "http://localhost:8080/accountinfo/IamCathal" -d '{"secret":"secretText"}'
+```
+
 
 ___
-### Account Information
+## Account Information
 #### `http://localhost:8080/accountinfo/username`
 Get the public account details for a given user e.g username, bio etc.
 
@@ -22,7 +30,7 @@ Get the public account details for a given user e.g username, bio etc.
 }
 ```
 ___
-### Issues Created
+## Issues Created
 #### `http://localhost:8080/issuescreated/username`
 
 Get a list of all issues created for a given user (can be open or closed at the time of retrieving).
@@ -45,7 +53,7 @@ Get a list of all issues created for a given user (can be open or closed at the 
 ```
 
 ___
-### Pull Requests
+## Pull Requests
 #### `http://localhost:8080/pullrequestsImproved/username`
 
 Get a list of all pull requests made by a given user. Includes details such as timestamps, Urls, amount of deletions and insertions, amount of commits for the given PR and the main language of the repository.
@@ -81,7 +89,7 @@ Get a list of all pull requests made by a given user. Includes details such as t
 ```
 
 ___
-### Open vs closed issues
+## Open vs closed issues
 #### `http://localhost:8080/openvsclosedissues/username`
 
 Get a list of all issues opened by the user. This query is meant to easily display the ratio of issues that have been opened and are currently still open vs ones that are currently closed.
@@ -105,7 +113,7 @@ Get a list of all issues opened by the user. This query is meant to easily displ
 ```
 
 ___
-### Repos contributed towards
+## Repos contributed towards
 #### `http://localhost:8080/repocontribsimproved/username`
 
 Get a list of all repositories contributed to for a given user. Includes information such as Url, name and description of the repository along with stats such as forkcount, stargazers amount and primary language of the repository
