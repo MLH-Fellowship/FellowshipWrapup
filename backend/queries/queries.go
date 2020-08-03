@@ -50,7 +50,7 @@ type PullRequests struct {
 					}
 				}
 			}
-		} `graphql:"pullRequests(first:30, states: MERGED)"`
+		} `graphql:"pullRequests(first:40, states: MERGED)"`
 	} `graphql:"user(login: $username)"`
 }
 
@@ -71,7 +71,7 @@ type InvolvedIssues struct {
 					}
 				}
 			}
-		} `graphql:"issueComments(last: 15)"`
+		} `graphql:"issueComments(first: 40)"`
 	} `graphql:"user(login: $username)"`
 }
 
@@ -82,7 +82,7 @@ type IssuesOpenVsClosed struct {
 			Nodes      []struct {
 				State graphql.String
 			}
-		} `graphql:"issues(first: 20, states:[OPEN,CLOSED])"`
+		} `graphql:"issues(first: 30, states:[OPEN,CLOSED])"`
 	} `graphql:"user(login: $username)"`
 }
 
@@ -112,6 +112,6 @@ type PRsMergedVsNot struct {
 			Nodes      []struct {
 				Merged graphql.Boolean
 			}
-		} `graphql:"pullRequests(first: 25, states:[OPEN,CLOSED,MERGED])"`
+		} `graphql:"pullRequests(first: 50, states:[OPEN,CLOSED,MERGED])"`
 	} `graphql:"user(login:$username)"`
 }
