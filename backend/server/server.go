@@ -25,6 +25,16 @@ type response struct {
 func VerificationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+
+		if _, ok := vars["startTime"]; ok {
+			util.SendErrorResponse(w, r, http.StatusUnauthorized, "0", "You are not allowed to set that value")
+			return
+		}
+		if _, ok := vars["fileName"]; ok {
+			util.SendErrorResponse(w, r, http.StatusUnauthorized, "0", "You are not allowed to set that value")
+			return
+		}
+
 		startTime := time.Now().UnixNano() / int64(time.Millisecond)
 		vars["startTime"] = strconv.FormatInt(startTime, 10)
 
