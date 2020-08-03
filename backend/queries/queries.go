@@ -97,6 +97,7 @@ type ReposContributedTo struct {
 				PrimaryLanguage struct {
 					Name graphql.String
 				}
+				ForkCount  graphql.Int
 				StarGazers struct {
 					TotalCount graphql.Int
 				} `graphql:"stargazers(first: 1)"`

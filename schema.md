@@ -155,8 +155,9 @@ Get a list of all repositories contributed to for a given user. Includes informa
                     "PrimaryLanguage": {
                         "Name": "Go"
                     },
+                    "ForkCount": 4916,
                     "StarGazers": {
-                        "TotalCount": 24572
+                        "TotalCount": 24595
                     }
                 }
             ]
