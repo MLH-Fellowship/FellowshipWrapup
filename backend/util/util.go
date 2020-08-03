@@ -25,7 +25,7 @@ type reqStruct struct {
 }
 
 type response struct {
-	Status string `json:"status"`
+	Status int    `json:"status"`
 	Body   string `json:"body"`
 }
 
@@ -213,7 +213,7 @@ func SendErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, s
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized)
 	res := response{
-		Status: "422",
+		Status: httpStatus,
 		Body:   errorString,
 	}
 	json.NewEncoder(w).Encode(res)
