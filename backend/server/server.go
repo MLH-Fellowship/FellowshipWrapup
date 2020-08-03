@@ -14,17 +14,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type response struct {
-	Status string `json:"status"`
-	Body   string `json:"body"`
-}
-
 // VerificationMiddleware handles authentication
 // and checking if the username and query type is valid before being
 // passed onto the requested endpoint
 func VerificationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+
+		startTime := time.Now().UnixNano() / int64(time.Millisecond)
+		vars["startTime"] = strconv.FormatInt(startTime, 10)
+
+		// Middleware checks are not needed for the
+		// root endpoint
+		if r.RequestURI == "/" {
+			next.ServeHTTP(w, r)
+			return
+		}
 
 		if _, ok := vars["startTime"]; ok {
 			util.SendErrorResponse(w, r, http.StatusUnauthorized, "0", "You are not allowed to set that value")
@@ -34,9 +39,6 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			util.SendErrorResponse(w, r, http.StatusUnauthorized, "0", "You are not allowed to set that value")
 			return
 		}
-
-		startTime := time.Now().UnixNano() / int64(time.Millisecond)
-		vars["startTime"] = strconv.FormatInt(startTime, 10)
 
 		if auth, err := util.IsAuthorized(w, r); !auth {
 			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
@@ -65,9 +67,9 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 // HomeHandler serves the content for the home page
 func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	res := response{
-		Status: "success",
-		Body:   "Home page",
+	res := util.Response{
+		Status: http.StatusOK,
+		Body:   "API is operational",
 	}
 
 	w.Header().Set("Content-Type", "application/json")

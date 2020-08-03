@@ -24,7 +24,7 @@ type reqStruct struct {
 	Secret string
 }
 
-type response struct {
+type Response struct {
 	Status int    `json:"status"`
 	Body   string `json:"body"`
 }
@@ -212,7 +212,7 @@ func GetCache(username, filename string) (string, error) {
 func SendErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, startTime, errorString string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized)
-	res := response{
+	res := Response{
 		Status: httpStatus,
 		Body:   errorString,
 	}
