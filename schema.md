@@ -113,6 +113,30 @@ Get a list of all issues opened by the user. This query is meant to easily displ
 ```
 
 ___
+## Merged vs non-merged pull requests
+#### `http://localhost:8080/mergedvsnonmergedprs/username`
+
+Get a list of all pull requests opened by the user which indicates how many PRs made by the user are currently open or merged
+
+```json
+{
+    "User": {
+        "PullRequests": {
+            "TotalCount": 32,
+            "Nodes": [
+                {
+                    "Merged": false
+                },
+                {
+                    "Merged": true
+                }
+            ]
+        }
+    }
+}
+```
+
+___
 ## Repos contributed towards
 #### `http://localhost:8080/repocontribsimproved/username`
 

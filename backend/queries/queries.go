@@ -5,11 +5,12 @@ import (
 )
 
 type MegaJSONStruct struct {
-	AccountInfo        accountInformation
-	PRs                PullRequests
-	InvolveIssues      InvolvedIssues
-	OpenVsClosedIssues IssuesOpenVsClosed
-	ReposContribedTo   ReposContributedTo
+	AccountInfo          accountInformation
+	PRs                  PullRequests
+	MergedVsNonMergedPRs PRsMergedVsNot
+	InvolveIssues        InvolvedIssues
+	OpenVsClosedIssues   IssuesOpenVsClosed
+	ReposContribedTo     ReposContributedTo
 }
 
 type accountInformation struct {
@@ -49,7 +50,7 @@ type PullRequests struct {
 					}
 				}
 			}
-		} `graphql:"pullRequests(first:5, states: MERGED)"`
+		} `graphql:"pullRequests(first:30, states: MERGED)"`
 	} `graphql:"user(login: $username)"`
 }
 
@@ -101,5 +102,16 @@ type ReposContributedTo struct {
 				} `graphql:"stargazers(first: 1)"`
 			}
 		} `graphql:"repositoriesContributedTo(first: 25)"`
+	} `graphql:"user(login:$username)"`
+}
+
+type PRsMergedVsNot struct {
+	User struct {
+		PullRequests struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Merged graphql.Boolean
+			}
+		} `graphql:"pullRequests(first: 25, states:[OPEN,CLOSED,MERGED])"`
 	} `graphql:"user(login:$username)"`
 }

@@ -181,11 +181,12 @@ func IsValidQueryType(query string) (string, error) {
 	// 	"prcontributions", "repocontribs"}
 
 	validTypes := map[string]bool{
-		"accountinfo":        true,
-		"pullrequests":       true,
-		"involvedissues":     true,
-		"openvsclosedissues": true,
-		"reposcontributedto": true,
+		"accountinfo":          true,
+		"pullrequests":         true,
+		"involvedissues":       true,
+		"openvsclosedissues":   true,
+		"reposcontributedto":   true,
+		"mergedvsnonmergedprs": true,
 	}
 	query = strings.ToLower(query)
 
@@ -244,6 +245,9 @@ func GetStruct(query, username string) (interface{}, map[string]interface{}) {
 		return reflect.New(structType).Interface(), variables
 	case "reposcontributedto":
 		structType := reflect.TypeOf(tempStruct.ReposContribedTo)
+		return reflect.New(structType).Interface(), variables
+	case "mergedvsnonmergedprs":
+		structType := reflect.TypeOf(tempStruct.MergedVsNonMergedPRs)
 		return reflect.New(structType).Interface(), variables
 	default:
 		return nil, variables

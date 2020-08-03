@@ -13,7 +13,9 @@ if len(sys.argv) > 2:
 secret="1234"
 username="IamCathal"
 endpoints = ["accountinfo", "pullrequests", "reposcontributedto",
-             "involvedissues", "openvsclosedissues"]
+             "involvedissues", "openvsclosedissues", "mergedvsnonmergedprs"]
+
+
 
 for endpoint in endpoints:
     req = requests.post("http://"+host+":"+port+"/"+endpoint+"/"+username, json={"secret":secret})
