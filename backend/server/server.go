@@ -31,15 +31,6 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if _, ok := vars["startTime"]; ok {
-			util.SendErrorResponse(w, r, http.StatusUnauthorized, "0", "You are not allowed to set that value")
-			return
-		}
-		if _, ok := vars["fileName"]; ok {
-			util.SendErrorResponse(w, r, http.StatusUnauthorized, "0", "You are not allowed to set that value")
-			return
-		}
-
 		if auth, err := util.IsAuthorized(w, r); !auth {
 			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
 			return
