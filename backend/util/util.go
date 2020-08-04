@@ -157,6 +157,36 @@ func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
 	return true, nil
 }
 
+func IsFellow(username string) bool {
+	client := SetupOAuth()
+
+	var tempStruct struct {
+		User struct {
+			Organization struct {
+				Name graphql.String
+			} `graphql:"organization(login: $org)"`
+		} `graphql:"user(login: $username)"`
+	}
+
+	variables := map[string]interface{}{
+		"username": graphql.String(username),
+		"org":      graphql.String("MLH-Fellowship"),
+	}
+
+	// Call the API
+	err := client.Query(context.Background(), &tempStruct, variables)
+	CheckAPICallErr(err)
+
+	if err != nil {
+		return false
+	}
+
+	if tempStruct.User.Organization.Name == "" {
+		return false
+	}
+	return true
+}
+
 // WriteCache writes a struct to its associated cache file for
 // a given user
 func WriteCache(username, filename string, data interface{}) {

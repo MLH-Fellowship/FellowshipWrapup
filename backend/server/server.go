@@ -31,6 +31,11 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		if isFellow := util.IsFellow(vars["username"]); !isFellow {
+			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], "User is not a member of the MLH-Fellowship")
+			return
+		}
+
 		if auth, err := util.IsAuthorized(w, r); !auth {
 			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
 			return
