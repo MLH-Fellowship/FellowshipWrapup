@@ -12,7 +12,7 @@ if len(sys.argv) > 2:
 
 secret="1234"
 username="IamCathal"
-endpoints = ["accountinfo", "pullrequests", "reposcontributedto",
+endpoints = ["accountinfo", "pullrequests", "reposcontributedto", "podinformation",
              "involvedissues", "openvsclosedissues", "mergedvsnonmergedprs"]
 
 

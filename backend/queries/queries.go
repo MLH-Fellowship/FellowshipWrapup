@@ -11,6 +11,7 @@ type MegaJSONStruct struct {
 	InvolveIssues        InvolvedIssues
 	OpenVsClosedIssues   IssuesOpenVsClosed
 	ReposContribedTo     ReposContributedTo
+	PodInfo              PodInformation
 }
 
 type accountInformation struct {
@@ -114,5 +115,30 @@ type PRsMergedVsNot struct {
 				Merged graphql.Boolean
 			}
 		} `graphql:"pullRequests(first: 50, states:[OPEN,CLOSED,MERGED])"`
+	} `graphql:"user(login:$username)"`
+}
+
+type PodInformation struct {
+	User struct {
+		Organization struct {
+			AvatarUrl graphql.String
+			CreatedAt graphql.String
+			Teams     struct {
+				Nodes []struct {
+					Slug      graphql.String
+					Url       graphql.String
+					AvatarUrl graphql.String
+					Members   struct {
+						Nodes []struct {
+							Login     graphql.String
+							Url       graphql.String
+							Name      graphql.String
+							AvatarUrl graphql.String
+							Location  graphql.String
+						}
+					} `graphql:"members(first: 10)"`
+				}
+			} `graphql:"teams(first: 1, userLogins: [$username], query: $pod)"`
+		} `graphql:"organization(login: $org)"`
 	} `graphql:"user(login:$username)"`
 }

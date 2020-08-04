@@ -131,6 +131,7 @@ func IsValidUsername(username string) bool {
 	CheckAPICallErr(err)
 
 	if err != nil {
+		log.Fatal(err)
 		return false
 	}
 
@@ -176,9 +177,6 @@ func WriteCache(username, filename string, data interface{}) {
 // IsValidQueryType determines if an incoming query is
 // implemented by the service
 func IsValidQueryType(query string) (string, error) {
-	// validTypes := []string{"accountinfo", "pullrequestcommits",
-	// 	"pullrequests", "issuescreated",
-	// 	"prcontributions", "repocontribs"}
 
 	validTypes := map[string]bool{
 		"accountinfo":          true,
@@ -187,6 +185,7 @@ func IsValidQueryType(query string) (string, error) {
 		"openvsclosedissues":   true,
 		"reposcontributedto":   true,
 		"mergedvsnonmergedprs": true,
+		"podinformation":       true,
 	}
 	query = strings.ToLower(query)
 
@@ -224,13 +223,12 @@ func SendErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, s
 // GetStruct returns the correct struct type based on the query type given
 func GetStruct(query, username string) (interface{}, map[string]interface{}) {
 	tempStruct := &queries.MegaJSONStruct{}
+
 	variables := map[string]interface{}{
 		"username": graphql.String(username),
 	}
 
-	query = strings.ToLower(query)
-
-	switch query {
+	switch strings.ToLower(query) {
 	case "accountinfo":
 		structType := reflect.TypeOf(tempStruct.AccountInfo)
 		return reflect.New(structType).Interface(), variables
@@ -248,6 +246,13 @@ func GetStruct(query, username string) (interface{}, map[string]interface{}) {
 		return reflect.New(structType).Interface(), variables
 	case "mergedvsnonmergedprs":
 		structType := reflect.TypeOf(tempStruct.MergedVsNonMergedPRs)
+		return reflect.New(structType).Interface(), variables
+	case "podinformation":
+		structType := reflect.TypeOf(tempStruct.PodInfo)
+		variables["org"] = graphql.String("MLH-Fellowship")
+		// Used to only query for teams that include "pod" in their title
+		// e.g exclude CTF and mentor teams
+		variables["pod"] = graphql.String("pod")
 		return reflect.New(structType).Interface(), variables
 	default:
 		return nil, variables

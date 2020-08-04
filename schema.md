@@ -165,3 +165,40 @@ Get a list of all repositories contributed to for a given user. Includes informa
     }
 }
 ```
+
+___
+## Pod Info
+#### `http://localhost:8080/podinformation/username`
+
+Get the pod and it's members for a given user. The team returned will be the member's pod and not a secondary team such as CTF or any other team within the org.
+
+```json
+{
+    "User": {
+        "Organization": {
+            "AvatarUrl": "https://avatars3.githubusercontent.com/u/65834464?v=4",
+            "CreatedAt": "2020-05-23T22:57:01Z",
+            "Teams": {
+                "Nodes": [
+                    {
+                        "Slug": "pod-0-5-1",
+                        "Url": "https://github.com/orgs/MLH-Fellowship/teams/pod-0-5-1",
+                        "AvatarUrl": "https://avatars2.githubusercontent.com/t/3867796?s=400&v=4",
+                        "Members": {
+                            "Nodes": [
+                                {
+                                    "Login": "IamCathal",
+                                    "Url": "https://github.com/IamCathal",
+                                    "Name": "Cathal O'Callaghan",
+                                    "AvatarUrl": "https://avatars1.githubusercontent.com/u/6561327?u=3746478b26e66ebe22eba9ba20097b477c455cc3&v=4",
+                                    "Location": ""
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+```
