@@ -5,7 +5,7 @@ import (
 )
 
 type MegaJSONStruct struct {
-	AccountInfo          accountInformation
+	AccountInfo          AccountInformation
 	PRs                  PullRequests
 	MergedVsNonMergedPRs PRsMergedVsNot
 	InvolveIssues        InvolvedIssues
