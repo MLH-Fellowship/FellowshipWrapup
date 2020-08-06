@@ -54,7 +54,7 @@ Get a list of all issues created for a given user (can be open or closed at the 
 
 ___
 ## Pull Requests
-#### `http://localhost:8080/pullrequestsImproved/username`
+#### `http://localhost:8080/pullrequests/username`
 
 Get a list of all pull requests made by a given user. Includes details such as timestamps, Urls, amount of deletions and insertions, amount of commits for the given PR and the main language of the repository.
 
@@ -138,9 +138,9 @@ Get a list of all pull requests opened by the user which indicates how many PRs 
 
 ___
 ## Repos contributed towards
-#### `http://localhost:8080/repocontribsimproved/username`
+#### `http://localhost:8080/repocontributedto/username`
 
-Get a list of all repositories contributed to for a given user. Includes information such as Url, name and description of the repository along with stats such as forkcount, stargazers amount and primary language of the repository
+Get a list of all repositories contributed to for a given user. Includes information such as Url, name and description of the repository along with stats such as forkcount, amount of stars and primary language of the repository
 
 ```json
 {
@@ -158,6 +158,37 @@ Get a list of all repositories contributed to for a given user. Includes informa
                     "ForkCount": 4916,
                     "StarGazers": {
                         "TotalCount": 24595
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+
+___
+## Involved issues
+#### `http://localhost:8080/involvedissues/username`
+
+Get a list of all issue comments that a user has posted. Helping out in issues is important and shouldn't be left out. Shows information such the issue title, URL and some stats about the repository.
+
+```json
+{
+    "User": {
+        "IssueComments": {
+            "TotalCount": 53,
+            "Nodes": [
+                {
+                    "Issue": {
+                        "Title": "Sponsors dashboard not themed"
+                    },
+                    "Url": "https://github.com/poychang/github-dark-theme/issues/209#issuecomment-657143168",
+                    "Repository": {
+                        "Name": "github-dark-theme",
+                        "Url": "https://github.com/poychang/github-dark-theme",
+                        "PrimaryLanguage": {
+                            "Name": "CSS"
+                        }
                     }
                 }
             ]

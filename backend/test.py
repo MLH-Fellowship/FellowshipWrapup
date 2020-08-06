@@ -10,7 +10,7 @@ port = "8080"
 if len(sys.argv) > 2:
     port = sys.argv[2]
 
-secret="1234"
+secret="canteverguessititsjusttoolongandcomplex"
 username="IamCathal"
 endpoints = ["accountinfo", "pullrequests", "reposcontributedto", "podinformation",
              "involvedissues", "openvsclosedissues", "mergedvsnonmergedprs"]

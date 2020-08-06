@@ -23,10 +23,9 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 
 		startTime := time.Now().UnixNano() / int64(time.Millisecond)
 		vars["startTime"] = strconv.FormatInt(startTime, 10)
-
 		// Middleware checks are not needed for the
 		// root endpoint
-		if r.RequestURI == "/" {
+		if r.URL.Path == "/" {
 			next.ServeHTTP(w, r)
 			return
 		}
