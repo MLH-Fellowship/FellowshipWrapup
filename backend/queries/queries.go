@@ -14,7 +14,7 @@ type MegaJSONStruct struct {
 	PodInfo              PodInformation
 }
 
-type accountInformation struct {
+type AccountInformation struct {
 	User struct {
 		Name            graphql.String
 		AvatarUrl       graphql.String
@@ -24,7 +24,7 @@ type accountInformation struct {
 		Url             graphql.String
 		WebsiteUrl      graphql.String
 		TwitterUsername graphql.String
-	} `graphql:"user(login: $username)"`
+	} `graphql:"yuppa: user(login: $username)"`
 }
 
 type PullRequests struct {
