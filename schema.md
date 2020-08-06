@@ -92,7 +92,7 @@ ___
 ## Open vs closed issues
 #### `http://localhost:8080/openvsclosedissues/username`
 
-Get a list of all issues opened by the user. This query is meant to easily display the ratio of issues that have been opened and are currently still open vs ones that are currently closed.
+Get a list of all issues opened by the user. This query is meant to easily display the ratio of issues that have been opened and are still currently open vs those that are already closed.
 
 ```json
 {
