@@ -21,7 +21,7 @@ import (
 )
 
 type reqStruct struct {
-	Secret string
+	Secret string `json:"secret"`
 }
 
 type response struct {

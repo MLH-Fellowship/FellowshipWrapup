@@ -81,8 +81,8 @@ func Query(w http.ResponseWriter, req *http.Request) {
 
 		err := client.Query(context.Background(), dataStruct, variables)
 		if err = util.CheckAPICallErr(err); err != nil {
-			// This catches errors thrown due to invalid usernames which is rare if not caught by the
-			// verification middleware
+			// Catches the edge case where someone used a username such as "explore" or "marketplace" which are valid
+			// github links (https://github.com/marketplace) but are not user profiles and therefore can't be queried
 			match, err := regexp.MatchString(`(Could not resolve to a User with the login of \')(.)+(\')`, err.Error())
 			if err != nil && !match {
 				util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint("Invalid query type given"))
