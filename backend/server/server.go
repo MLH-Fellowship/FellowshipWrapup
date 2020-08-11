@@ -31,7 +31,7 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 		}
 
 		if isFellow := util.IsFellow(vars["username"]); !isFellow {
-			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], "User is not a member of the MLH-Fellowship")
+			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], "User is not a member of the 'MLH-Fellowship' organisation")
 			return
 		}
 
@@ -73,6 +73,8 @@ func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
 }
 
+// Query checks if a cached result exists, if it does then it serves the cache. If a cache
+// does not exist it calls the API, writes the data to cache and then serves it.
 func Query(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -92,7 +94,7 @@ func Query(w http.ResponseWriter, req *http.Request) {
 			// github links (https://github.com/marketplace) but are not user profiles and therefore can't be queried
 			match, err := regexp.MatchString(`(Could not resolve to a User with the login of \')(.)+(\')`, err.Error())
 			if err != nil && !match {
-				util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint("Invalid query type given"))
+				util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint("Invalid username given"))
 				return
 
 			}
