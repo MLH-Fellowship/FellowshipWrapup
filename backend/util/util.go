@@ -29,7 +29,7 @@ type Response struct {
 	Body   string `json:"body"`
 }
 
-// CheckAPICallErr test
+// CheckAPICallErr checks the error value on an API call
 func CheckAPICallErr(err error) error {
 	if err == nil {
 		return nil
@@ -52,7 +52,7 @@ func CacheExists(path string) bool {
 	return false
 }
 
-// dirEmpty return s whether the given directory is empty
+// dirEmpty returns whether the given directory is empty
 func dirEmpty(path string) bool {
 	f, err := os.Open(path)
 	if err != nil {
@@ -67,7 +67,8 @@ func dirEmpty(path string) bool {
 	return false // Either not empty or error, suits both cases
 }
 
-// SetupOAuth test
+// SetupOAuth setups the OAuth2 client needed to make
+// calls to the GitHub V4 graphQL API
 func SetupOAuth() *graphql.Client {
 	src := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: os.Getenv("GRAPHQL_TOKEN")},
@@ -77,6 +78,7 @@ func SetupOAuth() *graphql.Client {
 	return client
 }
 
+// Log an API call to the console with it's details
 func LogCall(method, endpoint, status, startTimeString string, cached bool) {
 	statusColor := "\033[0m"
 	cacheString := ""
@@ -102,31 +104,26 @@ func LogCall(method, endpoint, status, startTimeString string, cached bool) {
 	fmt.Printf("[%s]%s%s %s %s%s%s %dms\n", time.Now().Format("02-Jan-2006 15:04:05"), cacheString, method, endpoint, statusColor, status, "\033[0m", delay)
 }
 
-// IsValidUsername checks if a gihub username exists
-// Pings the github profile and if the header contains
-// a non 200 the profile doesnt exist and we dont call the API
-// Returns true if the user is found
-// Returns false otherwise
+// IsValidUsername checks if a github username exists.
+// It pings the github profile and if the header contains
+// a non 200 status code the profile doesnt exist and we dont
+// call the API.
 func IsValidUsername(username string) bool {
 	// Empty username will yield 200 on github
 	if username == "" {
 		return false
 	}
 
-	// Check if username exists in github database
 	client := SetupOAuth()
-
 	var tempStruct struct {
 		User struct {
 			Login graphql.String
 		} `graphql:"user(login: $username)"`
 	}
-
 	variables := map[string]interface{}{
 		"username": graphql.String(username),
 	}
 
-	// Call the API
 	err := client.Query(context.Background(), &tempStruct, variables)
 	CheckAPICallErr(err)
 
@@ -134,11 +131,11 @@ func IsValidUsername(username string) bool {
 		log.Fatal(err)
 		return false
 	}
-
 	return true
 }
 
-// IsAuthorized checks if a request contains the correct server key
+// IsAuthorized checks if a request contains the correct server key. This stops
+// unwanted traffic using the service.
 // Returns true if the provided key is equal to the evironment variable
 // Returns false and error otherwise
 func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
@@ -157,6 +154,8 @@ func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
 	return true, nil
 }
 
+// isFellow determines if a given user is a member
+// of the MLH-Fellowship organisation
 func IsFellow(username string) bool {
 	client := SetupOAuth()
 
@@ -178,10 +177,12 @@ func IsFellow(username string) bool {
 	CheckAPICallErr(err)
 
 	if err != nil {
-	        log.Fatal(err)
+		log.Fatal(err)
 		return false
 	}
 
+	// When a user is not a member of the MLH-Fellowship org
+	// it fails it find it in their org list and is an empty string
 	if tempStruct.User.Organization.Name == "" {
 		return false
 	}
@@ -223,7 +224,6 @@ func IsValidQueryType(query string) (string, error) {
 	if validTypes[query] {
 		return fmt.Sprintf("%s.json", query), nil
 	}
-
 	return "", errors.New("Invalid query type given")
 }
 
@@ -239,6 +239,7 @@ func GetCache(username, filename string) (string, error) {
 	return string(content), nil
 }
 
+// SendErrorResponse sends a templated error response to the user
 func SendErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, startTime, errorString string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized)
