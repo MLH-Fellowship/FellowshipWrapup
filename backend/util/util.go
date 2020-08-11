@@ -146,26 +146,6 @@ func HasAccessToken(r *http.Request, vars map[string]string) bool {
 	return false
 }
 
-// IsAuthorized checks if a request contains the correct server key. This stops
-// unwanted traffic using the service.
-// Returns true if the provided key is equal to the evironment variable
-// Returns false and error otherwise
-func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
-	decoder := json.NewDecoder(r.Body)
-	var req reqStruct
-
-	err := decoder.Decode(&req)
-	if err != nil {
-		// couldn't decode the POST data into JSON
-		return false, err
-	}
-
-	if req.Secret != os.Getenv("secretKey") {
-		return false, errors.New("Incorrect 'secret'")
-	}
-	return true, nil
-}
-
 // isFellow determines if a given user is a member
 // of the MLH-Fellowship organisation
 func IsFellow(username, accessToken string) bool {
