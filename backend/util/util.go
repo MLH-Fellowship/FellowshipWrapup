@@ -24,8 +24,8 @@ type reqStruct struct {
 	Secret string `json:"secret"`
 }
 
-type response struct {
-	Status string `json:"status"`
+type Response struct {
+	Status int    `json:"status"`
 	Body   string `json:"body"`
 }
 
@@ -131,6 +131,7 @@ func IsValidUsername(username string) bool {
 	CheckAPICallErr(err)
 
 	if err != nil {
+		log.Fatal(err)
 		return false
 	}
 
@@ -156,6 +157,37 @@ func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
 	return true, nil
 }
 
+func IsFellow(username string) bool {
+	client := SetupOAuth()
+
+	var tempStruct struct {
+		User struct {
+			Organization struct {
+				Name graphql.String
+			} `graphql:"organization(login: $org)"`
+		} `graphql:"user(login: $username)"`
+	}
+
+	variables := map[string]interface{}{
+		"username": graphql.String(username),
+		"org":      graphql.String("MLH-Fellowship"),
+	}
+
+	// Call the API
+	err := client.Query(context.Background(), &tempStruct, variables)
+	CheckAPICallErr(err)
+
+	if err != nil {
+	        log.Fatal(err)
+		return false
+	}
+
+	if tempStruct.User.Organization.Name == "" {
+		return false
+	}
+	return true
+}
+
 // WriteCache writes a struct to its associated cache file for
 // a given user
 func WriteCache(username, filename string, data interface{}) {
@@ -176,17 +208,15 @@ func WriteCache(username, filename string, data interface{}) {
 // IsValidQueryType determines if an incoming query is
 // implemented by the service
 func IsValidQueryType(query string) (string, error) {
-	// validTypes := []string{"accountinfo", "pullrequestcommits",
-	// 	"pullrequests", "issuescreated",
-	// 	"prcontributions", "repocontribs"}
 
 	validTypes := map[string]bool{
-		"accountinfo":        true,
-		"pullrequestcommits": true,
-		"pullrequests":       true,
-		"issuescreated":      true,
-		"prcontributions":    true,
-		"repocontribs":       true,
+		"accountinfo":          true,
+		"pullrequests":         true,
+		"involvedissues":       true,
+		"openvsclosedissues":   true,
+		"reposcontributedto":   true,
+		"mergedvsnonmergedprs": true,
+		"podinformation":       true,
 	}
 	query = strings.ToLower(query)
 
@@ -212,8 +242,8 @@ func GetCache(username, filename string) (string, error) {
 func SendErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, startTime, errorString string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized)
-	res := response{
-		Status: "422",
+	res := Response{
+		Status: httpStatus,
 		Body:   errorString,
 	}
 	json.NewEncoder(w).Encode(res)
@@ -224,30 +254,36 @@ func SendErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, s
 // GetStruct returns the correct struct type based on the query type given
 func GetStruct(query, username string) (interface{}, map[string]interface{}) {
 	tempStruct := &queries.MegaJSONStruct{}
+
 	variables := map[string]interface{}{
 		"username": graphql.String(username),
 	}
 
-	query = strings.ToLower(query)
-
-	switch query {
+	switch strings.ToLower(query) {
 	case "accountinfo":
 		structType := reflect.TypeOf(tempStruct.AccountInfo)
 		return reflect.New(structType).Interface(), variables
 	case "pullrequests":
-		structType := reflect.TypeOf(tempStruct.Pr)
+		structType := reflect.TypeOf(tempStruct.PRs)
 		return reflect.New(structType).Interface(), variables
-	case "issuescreated":
-		structType := reflect.TypeOf(tempStruct.IssCreated)
+	case "involvedissues":
+		structType := reflect.TypeOf(tempStruct.InvolveIssues)
 		return reflect.New(structType).Interface(), variables
-	case "prcontributions":
-		structType := reflect.TypeOf(tempStruct.PRContributions)
+	case "openvsclosedissues":
+		structType := reflect.TypeOf(tempStruct.OpenVsClosedIssues)
 		return reflect.New(structType).Interface(), variables
-	case "pullrequestcommits":
-		structType := reflect.TypeOf(tempStruct.PRCommits)
+	case "reposcontributedto":
+		structType := reflect.TypeOf(tempStruct.ReposContribedTo)
 		return reflect.New(structType).Interface(), variables
-	case "repocontribs":
-		structType := reflect.TypeOf(tempStruct.PRCommits)
+	case "mergedvsnonmergedprs":
+		structType := reflect.TypeOf(tempStruct.MergedVsNonMergedPRs)
+		return reflect.New(structType).Interface(), variables
+	case "podinformation":
+		structType := reflect.TypeOf(tempStruct.PodInfo)
+		variables["org"] = graphql.String("MLH-Fellowship")
+		// Used to only query for teams that include "pod" in their title
+		// e.g exclude CTF and mentor teams
+		variables["pod"] = graphql.String("pod")
 		return reflect.New(structType).Interface(), variables
 	default:
 		return nil, variables
