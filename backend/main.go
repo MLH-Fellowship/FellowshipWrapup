@@ -4,16 +4,11 @@ import (
 	"backend/server"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
-
-	if os.Getenv("secretKey") == "" {
-		log.Fatal("No secret key set")
-	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", server.HomeHandler).Methods("GET")

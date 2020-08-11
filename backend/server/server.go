@@ -30,17 +30,17 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if isFellow := util.IsFellow(vars["username"]); !isFellow {
+		if hasToken := util.HasAccessToken(r, vars); !hasToken {
+			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], "No access token given")
+			return
+		}
+
+		if isFellow := util.IsFellow(vars["username"], vars["accessToken"]); !isFellow {
 			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], "User is not a member of the 'MLH-Fellowship' organisation")
 			return
 		}
 
-		if auth, err := util.IsAuthorized(w, r); !auth {
-			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], fmt.Sprint(err))
-			return
-		}
-
-		if validUsername := util.IsValidUsername(vars["username"]); !validUsername {
+		if validUsername := util.IsValidUsername(vars["username"], vars["accessToken"]); !validUsername {
 			util.SendErrorResponse(w, r, http.StatusBadRequest, vars["startTime"], "Invalid username given")
 			return
 		}
@@ -70,7 +70,7 @@ func HomeHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
-	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
+	util.LogCall(req.Method, req.URL.Path, "200", vars["startTime"], false)
 }
 
 // Query checks if a cached result exists, if it does then it serves the cache. If a cache
@@ -81,7 +81,7 @@ func Query(w http.ResponseWriter, req *http.Request) {
 	// Call the GitHub API and cache the result
 	if !util.CacheExists(fmt.Sprintf("../data/%s/%s", vars["username"], vars["fileName"])) {
 
-		client := util.SetupOAuth()
+		client := util.SetupOAuth(vars["accessToken"])
 		dataStruct, variables := util.GetStruct(vars["query"], vars["username"])
 		if dataStruct == nil {
 			util.SendErrorResponse(w, req, http.StatusUnauthorized, vars["startTime"], fmt.Sprint("Invalid query type given"))
@@ -105,7 +105,7 @@ func Query(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(dataStruct)
 
-		util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], false)
+		util.LogCall(req.Method, req.URL.Path, "200", vars["startTime"], false)
 		return
 	}
 
@@ -119,6 +119,6 @@ func Query(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, content)
-	util.LogCall(req.Method, req.RequestURI, "200", vars["startTime"], true)
+	util.LogCall(req.Method, req.URL.Path, "200", vars["startTime"], true)
 
 }

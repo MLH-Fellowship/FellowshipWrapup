@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"reflect"
 	"strconv"
@@ -33,9 +34,6 @@ type Response struct {
 func CheckAPICallErr(err error) error {
 	if err == nil {
 		return nil
-	}
-	if os.Getenv("GRAPHQL_TOKEN") == "" {
-		log.Fatal("Error: You have not set your GRAPHQL_TOKEN environment variable. Visit https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token to generate a token")
 	}
 	return err
 }
@@ -69,9 +67,9 @@ func dirEmpty(path string) bool {
 
 // SetupOAuth setups the OAuth2 client needed to make
 // calls to the GitHub V4 graphQL API
-func SetupOAuth() *graphql.Client {
+func SetupOAuth(accessToken string) *graphql.Client {
 	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GRAPHQL_TOKEN")},
+		&oauth2.Token{AccessToken: accessToken},
 	)
 	httpClient := oauth2.NewClient(context.Background(), src)
 	client := graphql.NewClient("https://api.github.com/graphql", httpClient)
@@ -108,13 +106,13 @@ func LogCall(method, endpoint, status, startTimeString string, cached bool) {
 // It pings the github profile and if the header contains
 // a non 200 status code the profile doesnt exist and we dont
 // call the API.
-func IsValidUsername(username string) bool {
+func IsValidUsername(username, accessToken string) bool {
 	// Empty username will yield 200 on github
 	if username == "" {
 		return false
 	}
 
-	client := SetupOAuth()
+	client := SetupOAuth(accessToken)
 	var tempStruct struct {
 		User struct {
 			Login graphql.String
@@ -132,6 +130,20 @@ func IsValidUsername(username string) bool {
 		return false
 	}
 	return true
+}
+
+// HasAccessToken get's the accesstoken field from the url and
+// adds it to the vars map
+func HasAccessToken(r *http.Request, vars map[string]string) bool {
+
+	u, _ := url.Parse(r.RequestURI)
+	values, _ := url.ParseQuery(u.RawQuery)
+	accessToken := values.Get("accesstoken")
+	if len(accessToken) > 0 {
+		vars["accessToken"] = accessToken
+		return true
+	}
+	return false
 }
 
 // IsAuthorized checks if a request contains the correct server key. This stops
@@ -156,8 +168,8 @@ func IsAuthorized(w http.ResponseWriter, r *http.Request) (bool, error) {
 
 // isFellow determines if a given user is a member
 // of the MLH-Fellowship organisation
-func IsFellow(username string) bool {
-	client := SetupOAuth()
+func IsFellow(username, accessToken string) bool {
+	client := SetupOAuth(accessToken)
 
 	var tempStruct struct {
 		User struct {
@@ -248,7 +260,7 @@ func SendErrorResponse(w http.ResponseWriter, r *http.Request, httpStatus int, s
 		Body:   errorString,
 	}
 	json.NewEncoder(w).Encode(res)
-	LogCall(r.Method, r.RequestURI, strconv.Itoa(httpStatus), startTime, false)
+	LogCall(r.Method, r.URL.Path, strconv.Itoa(httpStatus), startTime, false)
 	return
 }
 

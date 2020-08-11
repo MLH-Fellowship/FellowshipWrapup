@@ -10,14 +10,14 @@ port = "8080"
 if len(sys.argv) > 2:
     port = sys.argv[2]
 
-secret="canteverguessititsjusttoolongandcomplex"
-username="IamCathal"
+
+username = "IamCathal"
+accessToken = ""
 endpoints = ["accountinfo", "pullrequests", "reposcontributedto", "podinformation",
              "involvedissues", "openvsclosedissues", "mergedvsnonmergedprs"]
 
 
-
 for endpoint in endpoints:
-    req = requests.post("http://"+host+":"+port+"/"+endpoint+"/"+username, json={"secret":secret})
+    req = requests.post(f"http://{host}:{port}/{endpoint}/{username}?accesstoken={accessToken}")
     print(req.json())
 

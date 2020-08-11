@@ -1,6 +1,9 @@
 # Queries
 
-All queries must have a `secret` field in the request body with the correct key. 
+All queries must have an `accesstoken` field in the url e.g 
+```
+http://localhost:8080/accountinfo/IamCathal?accesstoken=githubAccessToken
+```
 
 If a field in the response is not set it will not be ommited, it will simply be empty.
 
