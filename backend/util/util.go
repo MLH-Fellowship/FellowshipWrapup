@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"reflect"
 	"strconv"
@@ -132,18 +131,21 @@ func IsValidUsername(username, accessToken string) bool {
 	return true
 }
 
-// HasAccessToken get's the accesstoken field from the url and
-// adds it to the vars map
+// HasAccessToken gets the accessToken field from the request body
+// Adds it to the vars map
+// Returns true if it finds an accessToken
+// Returns false otherwise
 func HasAccessToken(r *http.Request, vars map[string]string) bool {
-
-	u, _ := url.Parse(r.RequestURI)
-	values, _ := url.ParseQuery(u.RawQuery)
-	accessToken := values.Get("accesstoken")
-	if len(accessToken) > 0 {
-		vars["accessToken"] = accessToken
-		return true
+	var body struct {
+		AccessToken string
 	}
-	return false
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&body)
+	if err != nil || body.AccessToken == "" {
+		return false
+	}
+	vars["accessToken"] = body.AccessToken
+	return true
 }
 
 // isFellow determines if a given user is a member
