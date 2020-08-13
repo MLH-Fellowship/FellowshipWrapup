@@ -14,10 +14,10 @@ if len(sys.argv) > 2:
 username = "IamCathal"
 accessToken = ""
 endpoints = ["accountinfo", "pullrequests", "reposcontributedto", "podinformation",
-             "involvedissues", "openvsclosedissues", "mergedvsnonmergedprs"]
+             "involvedissues", "openvsclosedissues", "mergedvsnonmergedprs", "issuescreated"]
 
 
 for endpoint in endpoints:
-    req = requests.post(f"http://{host}:{port}/{endpoint}/{username}?accesstoken={accessToken}")
+    req = requests.post(f"http://{host}:{port}/{endpoint}/{username}", json={"accesstoken": ""})
     print(req.json())
 

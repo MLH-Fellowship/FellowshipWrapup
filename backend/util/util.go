@@ -212,6 +212,7 @@ func IsValidQueryType(query string) (string, error) {
 		"reposcontributedto":   true,
 		"mergedvsnonmergedprs": true,
 		"podinformation":       true,
+		"issuescreated":        true,
 	}
 	query = strings.ToLower(query)
 
@@ -272,6 +273,9 @@ func GetStruct(query, username string) (interface{}, map[string]interface{}) {
 		return reflect.New(structType).Interface(), variables
 	case "mergedvsnonmergedprs":
 		structType := reflect.TypeOf(tempStruct.MergedVsNonMergedPRs)
+		return reflect.New(structType).Interface(), variables
+	case "issuescreated":
+		structType := reflect.TypeOf(tempStruct.IssCreated)
 		return reflect.New(structType).Interface(), variables
 	case "podinformation":
 		structType := reflect.TypeOf(tempStruct.PodInfo)

@@ -12,6 +12,7 @@ type MegaJSONStruct struct {
 	OpenVsClosedIssues   IssuesOpenVsClosed
 	ReposContribedTo     ReposContributedTo
 	PodInfo              PodInformation
+	IssCreated           IssuesCreated
 }
 
 type AccountInformation struct {
@@ -85,6 +86,19 @@ type IssuesOpenVsClosed struct {
 			}
 		} `graphql:"issues(first: 30, states:[OPEN,CLOSED])"`
 	} `graphql:"user(login: $username)"`
+}
+
+type IssuesCreated struct {
+	User struct {
+		Issues struct {
+			TotalCount graphql.Int
+			Nodes      []struct {
+				Url       graphql.String
+				CreatedAt graphql.String
+				State     graphql.String
+			}
+		} `graphql:"issues(first: 30, states:[OPEN,CLOSED])"`
+	} `graphql:"user(login:$username)"`
 }
 
 type ReposContributedTo struct {
