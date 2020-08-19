@@ -1,0 +1,15 @@
+FROM golang
+
+# Set the working directory.
+WORKDIR /app
+
+# Copy files from your host to your current location.
+COPY . .
+
+# Get dependencies
+RUN go get
+RUN go build main.go
+
+ENTRYPOINT /app/main
+
+EXPOSE 8080
