@@ -1,6 +1,6 @@
 # Queries
 
-All queries **must** have an `accessToken` field in the body e.g 
+All queries **must** have an `accessToken` field in the body
 
 
 If a field in the response is not set it will not be ommited, it will simply be empty.
