@@ -125,7 +125,6 @@ func IsValidUsername(username, accessToken string) bool {
 	CheckAPICallErr(err)
 
 	if err != nil {
-		log.Fatal(err)
 		return false
 	}
 	return true
