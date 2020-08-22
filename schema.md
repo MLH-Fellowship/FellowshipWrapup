@@ -1,9 +1,7 @@
 # Queries
 
-All queries must have an `accesstoken` field in the url e.g 
-```
-http://localhost:8080/accountinfo/IamCathal?accesstoken=githubAccessToken
-```
+All queries **must** have an `accessToken` field in the body
+
 
 If a field in the response is not set it will not be ommited, it will simply be empty.
 
