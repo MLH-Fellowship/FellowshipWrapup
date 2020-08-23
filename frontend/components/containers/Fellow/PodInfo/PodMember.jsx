@@ -1,29 +1,17 @@
-export const PodInfo = ({ podInfo }) => {
+export const PodMember = ({ podMemberInfo }) => {
   return (
     <StyledRepo>
-      <div className="containter mt-5 mb-5">
-        <div className="row">
-          <h1 className="col-lg-12 display-3 text-left mt-5 section-heading">
-            The Team
-          </h1>
-          <h1 className="bold-text bg-text mb-2">[Pod x.x.x]</h1>
-          <div className="container mb-5">
-            <div className="row justify-content-center">
-              <div className="profile">
-                <div className="image">
-                  <div className="circle-1"></div>
-                  <div className="circle-2"></div>
-                  <img src="https://picsum.photos/128" width="70" height="70" />
-                </div>
+      <div className="profile">
+        <div className="image">
+          <div className="circle-1"></div>
+          <div className="circle-2"></div>
+          <img src="https://picsum.photos/128" width="70" height="70" />
+        </div>
 
-                <div className="name">[Podmate Name]</div>
+        <div className="name">[Podmate Name]</div>
 
-                <div className="actions">
-                  <a className="btn">GitHub</a>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="actions">
+          <a className="btn">GitHub</a>
         </div>
       </div>
     </StyledRepo>
