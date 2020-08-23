@@ -1,6 +1,6 @@
 import PodMember from "./PodMember";
 
-export const PodInfo = ({ podInfo }) => {
+export const PodTeamInfo = ({ podTeamInfo }) => {
     return (
       <StyledRepo>
             <div class="containter mt-5 mb-5">

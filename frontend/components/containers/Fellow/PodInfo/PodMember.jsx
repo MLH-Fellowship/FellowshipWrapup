@@ -1,4 +1,4 @@
-export const PodMember = ({ podInfo }) => {
+export const PodMember = ({ podMemberInfo }) => {
   return (
     <StyledRepo>
       <div className="profile">
