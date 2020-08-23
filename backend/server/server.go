@@ -30,9 +30,16 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if hasToken := util.HasAccessToken(r, vars); !hasToken {
-			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], "No access token given")
-			return
+		if exists := util.CacheExists(fmt.Sprintf("../data/%s", vars["username"])); !exists {
+			// Access token is ONLY needed to generate the profile. If the profile has
+			// already been generated anyone can view it
+			if hasToken := util.HasAccessToken(r, vars); !hasToken {
+				fmt.Println(vars)
+				fmt.Printf("Access token vars: %s\n", vars["accessToken"])
+				fmt.Println(r.RequestURI)
+				util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], "No access token given")
+				return
+			}
 		}
 
 		if isFellow := util.IsFellow(vars["username"], vars["accessToken"]); !isFellow {
