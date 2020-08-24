@@ -170,7 +170,6 @@ func IsFellow(username, accessToken string) bool {
 	CheckAPICallErr(err)
 
 	if err != nil {
-		log.Fatal(err)
 		return false
 	}
 
