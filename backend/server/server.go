@@ -34,13 +34,13 @@ func VerificationMiddleware(next http.Handler) http.Handler {
 			// Access token is ONLY needed to generate the profile. If the profile has
 			// already been generated anyone can view it
 			if hasToken := util.HasAccessToken(r, vars); !hasToken {
-				fmt.Println(vars)
-				fmt.Printf("Access token vars: %s\n", vars["accessToken"])
-				fmt.Println(r.RequestURI)
 				util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], "No access token given")
 				return
 			}
 		}
+		// We still need the accessToken and this function attatches
+		// it to vars
+		_ = util.HasAccessToken(r, vars)
 
 		if isFellow := util.IsFellow(vars["username"], vars["accessToken"]); !isFellow {
 			util.SendErrorResponse(w, r, http.StatusUnauthorized, vars["startTime"], "User is not a member of the 'MLH-Fellowship' organisation")

@@ -154,6 +154,7 @@ func IsFellow(username, accessToken string) bool {
 
 	var tempStruct struct {
 		User struct {
+			Name         graphql.String
 			Organization struct {
 				Name graphql.String
 			} `graphql:"organization(login: $org)"`
@@ -168,7 +169,6 @@ func IsFellow(username, accessToken string) bool {
 	// Call the API
 	err := client.Query(context.Background(), &tempStruct, variables)
 	CheckAPICallErr(err)
-
 	if err != nil {
 		return false
 	}
