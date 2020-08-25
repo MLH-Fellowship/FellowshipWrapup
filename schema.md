@@ -7,7 +7,7 @@ If a field in the response is not set it will not be ommited, it will simply be 
 
 The easiest way to test the API is to use the `test.py` script or you can manually test endpoints using curl with a command such as:
 ```
-curl -v -X POST "http://localhost:8080/accountinfo/IamCathal" -d '{"secret":"secretText"}'
+curl -v -X POST "http://localhost:8080/accountinfo/IamCathal" -d '{"accessToken":"github access token"}'
 ```
 
 
