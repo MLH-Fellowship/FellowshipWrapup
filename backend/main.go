@@ -20,7 +20,7 @@ func main() {
 	r.HandleFunc("/{query}/{username}", server.Query).Methods("POST")
 	r.Use(server.VerificationMiddleware)
 
-	log.Println("Starting web server on localhost:8080")
-	http.ListenAndServe(":8080", r)
+	log.Println("Starting web server on 0.0.0.0:8080")
+	http.ListenAndServe("0.0.0.0:8080", r)
 
 }
